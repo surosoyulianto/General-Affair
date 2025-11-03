@@ -1,0 +1,232 @@
+<?php
+
+namespace Database\Seeders;
+
+use Exception;
+use App\Models\User;
+use App\Models\Branch;
+use App\Models\Department;
+use App\Models\UserDetail;
+use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        /** Run Seeder */
+        foreach ($this->userSeeder as $user) {
+
+            /** Create User */
+            $insertedUser = User::create([
+                'name' => $user['name'],
+                'password' => Hash::make($user['password']),
+                'username' => $user['username'],
+                'email' => $user['email'],
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+                'status' => 1,
+            ]);
+
+            /** GET Branch ID by branch_code */
+            $branch = Branch::where('karep_code', $user['karep_code'])->first();
+
+            /** Create User Details */
+            if (!UserDetail::where('user_id', $insertedUser->id)->exists()) {
+                UserDetail::create([
+                    'user_id' => $insertedUser->id,
+                    'branch_id' => $branch->id ?? null,
+                    'department_id' => $user['department_id'] ?? null,
+                    'position' => $user['position'] ?? null,
+                    'nip' => $user['nip'] ?? null,
+                    'supervisor_id' => $user['supervisor_id'] ?? null,
+                ]);
+            }
+
+            /** Assign Role to User */
+            $insertedUser->assignRole($user['roles']);
+        }
+    }
+
+    protected $userSeeder = [
+        ['nip' => 'H.031.120B.454', 'name' => 'HARTONO GANDASUTEDJA', 'karep_code' => 'KPNO', 'email' => 'hartono.gandasutedja@equityfinance.co.id', 'username' => 'hartono.gandasutedja', 'password' => 'hartono.gandasutedja@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => 1, 'position' => 'PRESDIR'],
+        ['nip' => 'A.109.120B.899', 'name' => 'ARRESTO ARIO', 'karep_code' => 'KPNO', 'email' => 'arresto.ario@equityfinance.co.id', 'username' => 'arresto.ario', 'password' => 'arresto.ario@2024', 'roles' => ['policy.user.branch', 'approval_manual'], 'department_id' => '1', 'position' => 'WAPERSDIR', 'supervisor_id' => '1'],
+        // ['nip' => 'A.006.120B.080', 'name' => 'ASTUTI LUFTI', 'karep_code' => 'JKP', 'email' => 'astuti.lufti@equityfinance.co.id', 'username' => 'astuti.lufti', 'password' => 'astuti.lufti@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'A.032.120B.379', 'name' => 'AINI ALIAS ASNI CHANDRA', 'karep_code' => 'KPNO', 'email' => 'asni.chandra@equityfinance.co.id', 'username' => 'asni.chandra', 'password' => 'asni.chandra@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'A.036.120B.399', 'name' => 'ANJANI PUSPANINGRUM', 'karep_code' => 'SLO', 'email' => 'anjani.puspaningrum@equityfinance.co.id', 'username' => 'anjani.puspaningrum', 'password' => 'anjani.puspaningrum@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.066.120B.632', 'name' => 'AGUNG KRISWANTORO', 'karep_code' => 'JKU', 'email' => 'agung.kriswantoro@equityfinance.co.id', 'username' => 'agung.kriswantoro', 'password' => 'agung.kriswantoro@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.069.120B.650', 'name' => 'ANDREAS YANULIAN TRI UTOMO HADI', 'karep_code' => 'KPNO', 'email' => 'andreas.yanulian@equityfinance.co.id', 'username' => 'andreas.yanulian', 'password' => 'andreas.yanulian@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'A.074.120B.668', 'name' => 'ARI WIBOWO', 'karep_code' => 'KPNO', 'email' => 'ari.wibowo@equityfinance.co.id', 'username' => 'ari.wibowo', 'password' => 'ari.wibowo@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'A.083.120B.722', 'name' => 'ADI ISMUNARDI', 'karep_code' => 'DGO', 'email' => 'adi.ismunardi@equityfinance.co.id', 'username' => 'adi.ismunardi', 'password' => 'adi.ismunardi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.087.120B.728', 'name' => 'ANDI SUPRIYANTO', 'karep_code' => 'JKP', 'email' => 'andi.supriyanto@equityfinance.co.id', 'username' => 'andi.supriyanto', 'password' => 'andi.supriyanto@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.087.120B.748', 'name' => 'ANNISYA NURHIDAYAH FUTRI', 'karep_code' => 'BDG', 'email' => 'annisya.futri@equityfinance.co.id', 'username' => 'annisya.futri', 'password' => 'annisya.futri@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'A.093.120B.782', 'name' => 'ADITYA WIBOWO', 'karep_code' => 'KPNO', 'email' => 'aditya.wibowo@equityfinance.co.id', 'username' => 'aditya.wibowo', 'password' => 'aditya.wibowo@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'A.095.120B.803', 'name' => 'ANTONI SUDJONO', 'karep_code' => 'MLG', 'email' => 'antoni.sudjono@equityfinance.co.id', 'username' => 'antoni.sudjono', 'password' => 'antoni.sudjono@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.096.120B.805', 'name' => 'AGUS MUHIDIN', 'karep_code' => 'BDG', 'email' => 'agus.muhidin@equityfinance.co.id', 'username' => 'agus.muhidin', 'password' => 'agus.muhidin@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'A.098.120B.807', 'name' => 'ARY ALIF ADHIAKSA', 'karep_code' => 'JKP', 'email' => 'ary.alif@equityfinance.co.id', 'username' => 'ary.alif', 'password' => 'ary.alif@2024', 'roles' => ['policy.user.branch', 'policy.user.extended', 'approval_manual']],
+        ['nip' => 'A.100.120B.818', 'name' => 'AGUSTINUS ARDIAN PRAMUDYA', 'karep_code' => 'SBY', 'email' => 'agustinus.ardian@equityfinance.co.id', 'username' => 'agustinus.ardian', 'password' => 'agustinus.ardian@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'A.101.120B.822', 'name' => 'ALIF BASIRIN', 'karep_code' => 'SMG', 'email' => 'alif.basirin@equityfinance.co.id', 'username' => 'alif.basirin', 'password' => 'alif.basirin@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.103.120B.832', 'name' => 'ALFA KARUNIA IMANUEL', 'karep_code' => 'KPNO', 'email' => 'alfa.karunia@equityfinance.co.id', 'username' => 'alfa.karunia', 'password' => 'alfa.karunia@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'A.104.120B.833', 'name' => 'AYU ROSITA', 'karep_code' => 'KPNO', 'email' => 'ayu.rosita@equityfinance.co.id', 'username' => 'ayu.rosita', 'password' => 'ayu.rosita@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'A.105.120B.847', 'name' => 'AFRILIANI PUTRI YUSTINA', 'karep_code' => 'MLG', 'email' => 'afriliani.putri@equityfinance.co.id', 'username' => 'afriliani.putri', 'password' => 'afriliani.putri@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'A.106.120B.851', 'name' => 'ANISA FATRIANI', 'karep_code' => 'KPNO', 'email' => 'anisa.fatriani@equityfinance.co.id', 'username' => 'anisa.fatriani', 'password' => 'anisa.fatriani@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        ['nip' => 'B.005.120B.173', 'name' => 'BAMBANG SURJANTO', 'karep_code' => 'KPNO', 'email' => 'bavo@equityfinance.co.id', 'username' => 'bavo', 'password' => 'bavo@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => 15, 'position' => 'GM', 'supervisor_id' => '2'],
+        ['nip' => 'B.016.120B.583', 'name' => 'BENY WRISTA BAYU PUTRA', 'karep_code' => 'SBY', 'email' => 'beny.wrista@equityfinance.co.id', 'username' => 'beny.wrista', 'password' => 'beny.wrista@2024', 'roles' => ['policy.user.branch', 'approval_manual']],
+        // ['nip' => 'B.019.120B.601', 'name' => 'BUDI BOWOMUKTI', 'karep_code' => 'BDG', 'email' => 'budi.bowomukti@equityfinance.co.id', 'username' => 'budi.bowomukti', 'password' => 'budi.bowomukti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'B.031.120B.779', 'name' => 'BAYU RENDRA SRIERLIYONO PUTRO', 'karep_code' => 'MLG', 'email' => 'bayu.rendra@equityfinance.co.id', 'username' => 'bayu.rendra', 'password' => 'bayu.rendra@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'B.034.120B.797', 'name' => 'BRENDA ANITA DWI KARTIKA SARI', 'karep_code' => 'MLG', 'email' => 'brenda.anita@equityfinance.co.id', 'username' => 'brenda.anita', 'password' => 'brenda.anita@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'B.036.120B.891', 'name' => 'BETHARI AUDINA MARTHA KUSUMA', 'karep_code' => 'KPNO', 'email' => 'bethari.kusuma@equityfinance.co.id', 'username' => 'bethari.kusuma', 'password' => 'bethari.kusuma@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'C.009.120B.387', 'name' => 'CHESILIA FEBRIANA', 'karep_code' => 'SLO', 'email' => 'chesilia.febriana@equityfinance.co.id', 'username' => 'chesilia.febriana', 'password' => 'chesilia.febriana@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'C.021.120B.683', 'name' => 'CANDRA LINSIH', 'karep_code' => 'BSD', 'email' => 'candra.linsih@equityfinance.co.id', 'username' => 'candra.linsih', 'password' => 'candra.linsih@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'C.022.120B.687', 'name' => 'CHATARINA NOVI SULISTYA NUGRAHENY', 'karep_code' => 'SMG', 'email' => 'heny.chatarina@equityfinance.co.id', 'username' => 'heny.chatarina', 'password' => 'heny.chatarina@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'D.048.120B.689', 'name' => 'DEVIN DITYA ANGGADA', 'karep_code' => 'KPNO', 'email' => 'devin.da@equityfinance.co.id', 'username' => 'devin.da', 'password' => 'devin.da@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'D.049.120B.716', 'name' => 'DONALD AMTO GADI', 'karep_code' => 'SMR', 'email' => 'donald.amto@equityfinance.co.id', 'username' => 'donald.amto', 'password' => 'donald.amto@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'D.052.120B.763', 'name' => 'DJIE MOEK JUNG', 'karep_code' => 'KPNO', 'email' => 'mukjung.djie@equityfinance.co.id', 'username' => 'mukjung.djie', 'password' => 'mukjung.djie@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'D.058.120B.834', 'name' => 'DEWI RATNA SARI SIMAREMARE', 'karep_code' => 'KPNO', 'email' => 'dewi.simaremare@equityfinance.co.id', 'username' => 'dewi.simaremare', 'password' => 'dewi.simaremare@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'D.059.120B.875', 'name' => 'DENDY KRISTIANO', 'karep_code' => 'DGO', 'email' => 'dendy.kristiano@equityfinance.co.id', 'username' => 'dendy.kristiano', 'password' => 'dendy.kristiano@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'E.026.120B.456', 'name' => 'ERWAN DWI PURNOMO', 'karep_code' => 'KPNO', 'email' => 'erwan.purnomo@equityfinance.co.id', 'username' => 'erwan.purnomo', 'password' => 'erwan.purnomo@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '8', 'position' => 'DGMB'],
+        // ['nip' => 'E.033.120B.849', 'name' => 'ETY RETNOWATI', 'karep_code' => 'BSD', 'email' => 'ety.retnowati@equityfinance.co.id', 'username' => 'ety.retnowati', 'password' => 'ety.retnowati@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'E.034.120B.878', 'name' => 'EKA RUSTIANA', 'karep_code' => 'JKU', 'email' => 'eka.rustiana@equityfinance.co.id', 'username' => 'eka.rustiana', 'password' => 'eka.rustiana@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'E.035.120B.887', 'name' => 'EMANUEL WIDIPRASETYO', 'karep_code' => 'KPNO', 'email' => 'emanuel.widiprasetyo@equityfinance.co.id', 'username' => 'emanuel.widiprasetyo', 'password' => 'emanuel.widiprasetyo@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'policy.editor']],
+        // ['nip' => 'E.036.120B.889', 'name' => 'ENDRI CAHYA SAPUTRA', 'karep_code' => 'MTR', 'email' => 'endri.cahya@equityfinance.co.id', 'username' => 'endri.cahya', 'password' => 'endri.cahya@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS07', 'name' => 'LISTANTO BUDI SANTOSO', 'karep_code' => 'SBY', 'email' => 'listanto.budi@equityfinance.co.id', 'username' => 'listanto.budi', 'password' => 'listanto.budi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS08', 'name' => 'MARGA SETYA WAHYUDI', 'karep_code' => 'SMR', 'email' => 'marga.setya@equityfinance.co.id', 'username' => 'marga.setya', 'password' => 'marga.setya@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS09', 'name' => 'MUHANA MUSA', 'karep_code' => 'KDR', 'email' => 'muhana.musa@equityfinance.co.id', 'username' => 'muhana.musa', 'password' => 'muhana.musa@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS14', 'name' => 'MAHENI DWI KUSWANTO', 'karep_code' => 'MLG', 'email' => 'maheni.dwi@equityfinance.co.id', 'username' => 'maheni.dwi', 'password' => 'maheni.dwi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS15', 'name' => 'GREGORIUS NATANAEL AGUNG PRASETYO', 'karep_code' => 'PLG', 'email' => 'agung.prasetyo@equityfinance.co.id', 'username' => 'agung.prasetyo', 'password' => 'agung.prasetyo@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'EFIOS17', 'name' => 'EDDY SUDRAJAT', 'karep_code' => 'SLO', 'email' => 'eddy.sudrajat@equityfinance.co.id', 'username' => 'eddy.sudrajat', 'password' => 'eddy.sudrajat@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'F.018.120B.451', 'name' => 'FATMA ERDIANA', 'karep_code' => 'JKP', 'email' => 'fatma.erdiana@equityfinance.co.id', 'username' => 'fatma.erdiana', 'password' => 'fatma.erdiana@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'F.020.120B.472', 'name' => 'FARIDA', 'karep_code' => 'KPNO', 'email' => 'farida@equityfinance.co.id', 'username' => 'farida', 'password' => 'farida@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'F.021.120B.521', 'name' => 'FITRI PURWANTI', 'karep_code' => 'BDG', 'email' => 'fitri.purwanti@equityfinance.co.id', 'username' => 'fitri.purwanti', 'password' => 'fitri.purwanti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'F.031.120B.739', 'name' => 'FAIRUS SULTHONI', 'karep_code' => 'KDR', 'email' => 'fairus.sulthoni@equityfinance.co.id', 'username' => 'fairus.sulthoni', 'password' => 'fairus.sulthoni@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'F.034.120B.837', 'name' => 'FRANSISCUS TRI WIBILAKSONI', 'karep_code' => 'KPNO', 'email' => 'triwibilaksoni@equityfinance.co.id', 'username' => 'triwibilaksoni', 'password' => 'triwibilaksoni@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'F.035.120B.869', 'name' => 'FIFI NURKUMALA DEWI', 'karep_code' => 'PLG', 'email' => 'fifi.nurkumala@equityfinance.co.id', 'username' => 'fifi.nurkumala', 'password' => 'fifi.nurkumala@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'F.036.120B.873', 'name' => 'FITRI NOFITA SARI', 'karep_code' => 'KPNO', 'email' => 'fitri.novita@equityfinance.co.id', 'username' => 'fitri.novita', 'password' => 'fitri.novita@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'F.037.120B.885', 'name' => 'FAUZY NASRUL', 'karep_code' => 'PBR', 'email' => 'fauzy.nasrul@equityfinance.co.id', 'username' => 'fauzy.nasrul', 'password' => 'fauzy.nasrul@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'G.104.120B.766', 'name' => 'GRACE JUNITA', 'karep_code' => 'KPNO', 'email' => 'grace.junita@equityfinance.co.id', 'username' => 'grace.junita', 'password' => 'grace.junita@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'H.038.120B.594', 'name' => 'HENDRI WIJAYA', 'karep_code' => 'JKU', 'email' => 'hendri.wijaya@equityfinance.co.id', 'username' => 'hendri.wijaya', 'password' => 'hendri.wijaya@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'H.041.120B.669', 'name' => 'HARDIAN', 'karep_code' => 'JKU', 'email' => 'hardian.boy@equityfinance.co.id', 'username' => 'hardian.boy', 'password' => 'hardian.boy@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'H.043.120B.700', 'name' => 'HEMIYADI', 'karep_code' => 'PLG', 'email' => 'hemi.yadi@equityfinance.co.id', 'username' => 'hemi.yadi', 'password' => 'hemi.yadi@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'H.045.120B.720', 'name' => 'HOLY VILIA TIRTODIMEDJO', 'karep_code' => 'KPNO', 'email' => 'holy.vilia@equityfinance.co.id', 'username' => 'holy.vilia', 'password' => 'holy.vilia@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'H.048.120B.762', 'name' => 'HELMIYANSHA', 'karep_code' => 'JKU', 'email' => 'helmiyansha@equityfinance.co.id', 'username' => 'helmiyansha', 'password' => 'helmiyansha@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'H.051.120B.854', 'name' => 'HARYANTO', 'karep_code' => 'SMG', 'email' => 'haryanto@equityfinance.co.id', 'username' => 'haryanto', 'password' => 'haryanto@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'H.052.120B.870', 'name' => 'HEPPY FITRIANI', 'karep_code' => 'JKS', 'email' => 'heppy.fitriani@equityfinance.co.id', 'username' => 'heppy.fitriani', 'password' => 'heppy.fitriani@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'H.053.120B.872', 'name' => 'HILDA HANIFAH', 'karep_code' => 'SBY', 'email' => 'hilda.hanifah@equityfinance.co.id', 'username' => 'hilda.hanifah', 'password' => 'hilda.hanifah@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'H.056.120B.893', 'name' => 'HELGA MEIFA SAMOSIR', 'karep_code' => 'KPNO', 'email' => 'helga.samosir@equityfinance.co.id', 'username' => 'helga.samosir', 'password' => 'helga.samosir@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'I.015.120B.341', 'name' => 'IMAM ROSADI', 'karep_code' => 'BDG', 'email' => 'imam.rosadi@equityfinance.co.id', 'username' => 'imam.rosadi', 'password' => 'imam.rosadi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'I.022.120B.398', 'name' => 'ISWANTI', 'karep_code' => 'KPNO', 'email' => 'iswanti@equityfinance.co.id', 'username' => 'iswanti', 'password' => 'iswanti@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'I.027.120B.654', 'name' => 'IYUS SUHERMAN', 'karep_code' => 'BDG', 'email' => 'iyus.suherman@equityfinance.co.id', 'username' => 'iyus.suherman', 'password' => 'iyus.suherman@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'I.031.120B.741', 'name' => 'IZHARYAN IQBAL', 'karep_code' => 'KPNO', 'email' => 'izharyan.iqbal@equityfinance.co.id', 'username' => 'izharyan.iqbal', 'password' => 'izharyan.iqbal@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'I.039.120B.846', 'name' => 'ISHADI NUGRAHA', 'karep_code' => 'MKS', 'email' => 'ishadi.nugraha@equityfinance.co.id', 'username' => 'ishadi.nugraha', 'password' => 'ishadi.nugraha@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'I.040.120B.897', 'name' => 'IRFAN TAUFIK', 'karep_code' => 'DGO', 'email' => 'irfan.taufik@equityfinance.co.id', 'username' => 'irfan.taufik', 'password' => 'irfan.taufik@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'J.026.120B.587', 'name' => 'JORDI ARDIAN', 'karep_code' => 'SMG', 'email' => 'jordi.ardian@equityfinance.co.id', 'username' => 'jordi.ardian', 'password' => 'jordi.ardian@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'J.028.120B.726', 'name' => 'JONI SURYA ADMAJA', 'karep_code' => 'SMR', 'email' => 'joni.surya@equityfinance.co.id', 'username' => 'joni.surya', 'password' => 'joni.surya@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'J.030.120B.743', 'name' => 'JHON HENDRA SIMBOLON', 'karep_code' => 'MDN', 'email' => 'jhon.hendra@equityfinance.co.id', 'username' => 'jhon.hendra', 'password' => 'jhon.hendra@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'K.020.120B.689', 'name' => 'KAMALUDIN', 'karep_code' => 'BSD', 'email' => 'kamaluddin@equityfinance.co.id', 'username' => 'kamaluddin', 'password' => 'kamaluddin@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'K.022.120B.729', 'name' => 'KRISTINA MEGA AYU PRADIPTA', 'karep_code' => 'KPNO', 'email' => 'kristina.ayu@equityfinance.co.id', 'username' => 'kristina.ayu', 'password' => 'kristina.ayu@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'K.025.120B.841', 'name' => 'KORNELIUS REMBO', 'karep_code' => 'DPS', 'email' => 'kornelius.rembo@equityfinance.co.id', 'username' => 'kornelius.rembo', 'password' => 'kornelius.rembo@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'L.028.120B.446', 'name' => 'LIAUW SIU FUN', 'karep_code' => 'KPNO', 'email' => 'liauw.siufun@equityfinance.co.id', 'username' => 'liauw.siufun', 'password' => 'liauw.siufun@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'L.029.120B.457', 'name' => 'LINDA WIJAYA', 'karep_code' => 'MDN', 'email' => 'linda.wijaya@equityfinance.co.id', 'username' => 'linda.wijaya', 'password' => 'linda.wijaya@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'L.031.120B.481', 'name' => 'LUCIA TAURINA SUGIRI', 'karep_code' => 'BDG', 'email' => 'lucia.taurina@equityfinance.co.id', 'username' => 'lucia.taurina', 'password' => 'lucia.taurina@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'L.033.120B.575', 'name' => 'LOA RISKA', 'karep_code' => 'JKU', 'email' => 'loa.riska@equityfinance.co.id', 'username' => 'loa.riska', 'password' => 'loa.riska@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'L.034.120B.580', 'name' => 'LIMAN ADI JAYA', 'karep_code' => 'MLG', 'email' => 'liman.adijaya@equityfinance.co.id', 'username' => 'liman.adijaya', 'password' => 'liman.adijaya@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'L.035.120B.618', 'name' => 'LESTARI SITINJAK', 'karep_code' => 'KPNO', 'email' => 'lestari.sitinjak@equityfinance.co.id', 'username' => 'lestari.sitinjak', 'password' => 'lestari.sitinjak@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'policy.editor']],
+        // ['nip' => 'L.040.120B.862', 'name' => 'LUCKY WIDODO', 'karep_code' => 'KDR', 'email' => 'lucky.widodo@equityfinance.co.id', 'username' => 'lucky.widodo', 'password' => 'lucky.widodo@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.043.120B.588', 'name' => 'MUHAMMAD MANSUR', 'karep_code' => 'KDR', 'email' => 'mansur.muhammad@equityfinance.co.id', 'username' => 'mansur.muhammad', 'password' => 'mansur.muhammad@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'M.058.120B.788', 'name' => 'MOCHAMAD RIZKY ABDURACHMAN', 'karep_code' => 'DGO', 'email' => 'moch.rizky@equityfinance.co.id', 'username' => 'moch.rizky', 'password' => 'moch.rizky@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.059.120B.789', 'name' => 'MUHAMAD ARIEF', 'karep_code' => 'JKP', 'email' => 'muhamad.arief@equityfinance.co.id', 'username' => 'muhamad.arief', 'password' => 'muhamad.arief@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.060.120B.790', 'name' => 'MUHAMMAD FAUZAN', 'karep_code' => 'JKU', 'email' => 'muhammad.fauzan@equityfinance.co.id', 'username' => 'muhammad.fauzan', 'password' => 'muhammad.fauzan@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.064.120B.839', 'name' => 'MUHAMMAD RENALDY NASUTION', 'karep_code' => 'JKP', 'email' => 'muhammad.renaldy@equityfinance.co.id', 'username' => 'muhammad.renaldy', 'password' => 'muhammad.renaldy@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.065.120B.858', 'name' => 'MELLYTA WULANDARI N', 'karep_code' => 'PLG', 'email' => 'mellyta.wulandari@equityfinance.co.id', 'username' => 'mellyta.wulandari', 'password' => 'mellyta.wulandari@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.067.120B.881', 'name' => 'MUHAMMAD HUSNI', 'karep_code' => 'MKS', 'email' => 'muhammad.husni@equityfinance.co.id', 'username' => 'muhammad.husni', 'password' => 'muhammad.husni@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'M.068.120B.888', 'name' => 'M ARIF FADILLAH', 'karep_code' => 'MDN', 'email' => 'arif.fadillah@equityfinance.co.id', 'username' => 'arif.fadillah', 'password' => 'arif.fadillah@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.009.120B.172', 'name' => 'NIKEN WIDYARTI', 'karep_code' => 'JKP', 'email' => 'niken.widyarti@equityfinance.co.id', 'username' => 'niken.widyarti', 'password' => 'niken.widyarti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.015.120B.239', 'name' => 'NI LUH DEWI PUSPASARI NANDARI', 'karep_code' => 'KPNO', 'email' => 'niluh.dewi@equityfinance.co.id', 'username' => 'niluh.dewi', 'password' => 'niluh.dewi@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'N.023.120B.460', 'name' => 'NATALIA PUSPITA SARI', 'karep_code' => 'DPS', 'email' => 'natalia.puspita@equityfinance.co.id', 'username' => 'natalia.puspita', 'password' => 'natalia.puspita@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'N.036.120B.749', 'name' => 'NANDANG ERWIN PERMANA', 'karep_code' => 'BDG', 'email' => 'nandang.erwin@equityfinance.co.id', 'username' => 'nandang.erwin', 'password' => 'nandang.erwin@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.038.120B.840', 'name' => 'NINA KARTIKA WARDANI', 'karep_code' => 'SBY', 'email' => 'nina.kartika@equityfinance.co.id', 'username' => 'nina.kartika', 'password' => 'nina.kartika@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.039.120B.859', 'name' => 'NOVI EKAWATI', 'karep_code' => 'SMR', 'email' => 'novi.ekawati@equityfinance.co.id', 'username' => 'novi.ekawati', 'password' => 'novi.ekawati@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.040.120B.863', 'name' => 'NURPAJRI ALAMIN', 'karep_code' => 'PBR', 'email' => 'nurpajri.alamin@equityfinance.co.id', 'username' => 'nurpajri.alamin', 'password' => 'nurpajri.alamin@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.042.120B.866', 'name' => 'NADYA ALYA PUTRI', 'karep_code' => 'MTR', 'email' => 'nadya.alya@equityfinance.co.id', 'username' => 'nadya.alya', 'password' => 'nadya.alya@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.043.120B.879', 'name' => 'NUR SYAHIRA', 'karep_code' => 'SMG', 'email' => 'nur.syahira@equityfinance.co.id', 'username' => 'nur.syahira', 'password' => 'nur.syahira@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'N.044.120B.884', 'name' => 'NADRAH HAYATI POSPOS', 'karep_code' => 'MDN', 'email' => 'nadrah.hayati@equityfinance.co.id', 'username' => 'nadrah.hayati', 'password' => 'nadrah.hayati@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'O.005.120B.701', 'name' => 'OCTARIA QUARTINA SASHIA', 'karep_code' => 'KPNO', 'email' => 'octa.sashia@equityfinance.co.id', 'username' => 'octa.sashia', 'password' => 'octa.sashia@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        ['nip' => 'P.002.120B.079', 'name' => 'PITONO', 'karep_code' => 'KPNO', 'email' => 'pitono@equityfinance.co.id', 'username' => 'pitono', 'password' => 'pitono@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '14', 'position' => 'ASSISTANT ACCOUNTING MANAGER', 'supervisor_id' => '1'],
+        ['nip' => 'P.003.120B.155', 'name' => 'PRASETIATI PURNAMANINGSIH', 'karep_code' => 'KPNO', 'email' => 'prasetiati@equityfinance.co.id', 'username' => 'prasetiati', 'password' => 'prasetiati@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '15', 'position' => 'Manager IT Operation', 'supervisor_id' => '6'],
+        // ['nip' => 'P.007.120B.180', 'name' => 'PRAMONO SIDO UTOMO', 'karep_code' => 'SLO', 'email' => 'pramono.utomo@equityfinance.co.id', 'username' => 'pramono.utomo', 'password' => 'pramono.utomo@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'P.021.120B.810', 'name' => 'PRIMA DOLY IRAWAN', 'karep_code' => 'MTR', 'email' => 'prima.irawan@equityfinance.co.id', 'username' => 'prima.irawan', 'password' => 'prima.irawan@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'P.023.120B.877', 'name' => 'PRISKILA YULIANTI', 'karep_code' => 'KPNO', 'email' => 'priskila.yulianti@equityfinance.co.id', 'username' => 'priskila.yulianti', 'password' => 'priskila.yulianti@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'R.032.120B.517', 'name' => 'RONY MANUMPAK PARDEDE', 'karep_code' => 'SMR', 'email' => 'rony.pardede@equityfinance.co.id', 'username' => 'rony.pardede', 'password' => 'rony.pardede@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        ['nip' => 'R.036.120B.578', 'name' => 'RIO TANUSUBRATA', 'karep_code' => 'KPNO', 'email' => 'rio.tanusubrata@equityfinance.co.id', 'username' => 'rio.tanusubrata', 'password' => 'rio.tanusubrata@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'R.042.120B.692', 'name' => 'RAYMONDUS CANDRA KURNIAWAN', 'karep_code' => 'SMG', 'email' => 'raymondus.ck@equityfinance.co.id', 'username' => 'raymondus.ck', 'password' => 'raymondus.ck@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'R.043.120B.699', 'name' => 'RADEN AMIR SIDIQ WINATAKOESOEMA', 'karep_code' => 'KPNO', 'email' => 'amir.sidiq@equityfinance.co.id', 'username' => 'amir.sidiq', 'password' => 'amir.sidiq@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'R.045.120B.756', 'name' => 'RINA YANTI', 'karep_code' => 'SMR', 'email' => 'rina.yanti@equityfinance.co.id', 'username' => 'rina.yanti', 'password' => 'rina.yanti@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'R.046.120B.758', 'name' => 'RUSMAN EFENDI', 'karep_code' => 'KPNO', 'email' => 'rusman.effendi@equityfinance.co.id', 'username' => 'rusman.effendi', 'password' => 'rusman.effendi@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'policy.editor', 'approval_manual']],
+        // ['nip' => 'R.047.120B.778', 'name' => 'ROBIN', 'karep_code' => 'MDN', 'email' => 'robin@equityfinance.co.id', 'username' => 'robin', 'password' => 'robin@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'R.049.120B.827', 'name' => 'RINTO SANJAYA SIANTURI', 'karep_code' => 'MDN', 'email' => 'rinto.sianturi@equityfinance.co.id', 'username' => 'rinto.sianturi', 'password' => 'rinto.sianturi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'R.050.120B.830', 'name' => 'RIKA ERIANA', 'karep_code' => 'KDR', 'email' => 'rika.eriana@equityfinance.co.id', 'username' => 'rika.eriana', 'password' => 'rika.eriana@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'R.053.120B.857', 'name' => 'RUDIYANTO', 'karep_code' => 'PLG', 'email' => 'rudiyanto@equityfinance.co.id', 'username' => 'rudiyanto', 'password' => 'rudiyanto@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'R.055.120B.867', 'name' => 'REZA ADITIA NUGRAHA', 'karep_code' => 'BDG', 'email' => 'reza.aditia@equityfinance.co.id', 'username' => 'reza.aditia', 'password' => 'reza.aditia@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'R.056.120B.876', 'name' => 'RR ARIANA KANNA SAPUTRI', 'karep_code' => 'KPNO', 'email' => 'ariana.kanna@equityfinance.co.id', 'username' => 'ariana.kanna', 'password' => 'ariana.kanna@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'R.057.120B.882', 'name' => 'ROBERTUS APRILIO KARISMA PUTRA', 'karep_code' => 'KPNO', 'email' => 'aprilio.karisma@equityfinance.co.id', 'username' => 'aprilio.karisma', 'password' => 'aprilio.karisma@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'R.058.120B.890', 'name' => 'RONNY KUSUMA', 'karep_code' => 'KPNO', 'email' => 'ronny.kusuma@equityfinance.co.id', 'username' => 'ronny.kusuma', 'password' => 'ronny.kusuma@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'R.059.120B.894', 'name' => 'ROBERTUS REGA', 'karep_code' => 'KPNO', 'email' => 'robertus.rega@equityfinance.co.id', 'username' => 'robertus.rega', 'password' => 'robertus.rega@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'R.060.120B.896', 'name' => 'ROHMA WATI NINGRUM', 'karep_code' => 'PLG', 'email' => 'rohma.wati@equityfinance.co.id', 'username' => 'rohma.wati', 'password' => 'rohma.wati@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'S.059.120B.531', 'name' => 'SRI INDAH SETIARINI', 'karep_code' => 'KPNO', 'email' => 'indah.setiarini@equityfinance.co.id', 'username' => 'indah.setiarini', 'password' => 'indah.setiarini@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'S.061.120B.556', 'name' => 'STEFANUS WAHYU PRATAMA', 'karep_code' => 'PBR', 'email' => 'wahyu.pratama@equityfinance.co.id', 'username' => 'wahyu.pratama', 'password' => 'wahyu.pratama@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'S.074.120B.685', 'name' => 'SARDIMAN', 'karep_code' => 'MKS', 'email' => 'sardiman@equityfinance.co.id', 'username' => 'sardiman', 'password' => 'sardiman@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'S.077.120B.713', 'name' => 'SUN HANDINATA SEPTIYAN', 'karep_code' => 'SMG', 'email' => 'handinata.septiyan@equityfinance.co.id', 'username' => 'handinata.septiyan', 'password' => 'handinata.septiyan@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'S.080.120B.765', 'name' => 'SIMBORA SILITONGA', 'karep_code' => 'MDN', 'email' => 'simbora.silitonga@equityfinance.co.id', 'username' => 'simbora.silitonga', 'password' => 'simbora.silitonga@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'S.084.120B.787', 'name' => 'SAMUEL SIMANJORANG', 'karep_code' => 'KPNO', 'email' => 'samuel.simanjorang@equityfinance.co.id', 'username' => 'samuel.simanjorang', 'password' => 'samuel.simanjorang@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        ['nip' => 'S.087.120B.801', 'name' => 'SISCA', 'karep_code' => 'KPNO', 'email' => 'sisca@equityfinance.co.id', 'username' => 'sisca', 'password' => 'sisca@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'S.088.120B.802', 'name' => 'SEPTIANDI', 'karep_code' => 'KPNO', 'email' => 'septiandi@equityfinance.co.id', 'username' => 'septiandi', 'password' => 'septiandi@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'S.090.120B.836', 'name' => 'SUTAN ARLENUS RHAMADAN', 'karep_code' => 'SBY', 'email' => 'sutan.arlenus@equityfinance.co.id', 'username' => 'sutan.arlenus', 'password' => 'sutan.arlenus@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'S.092.120B.848', 'name' => 'SABARUDDIN DAMANIK', 'karep_code' => 'MDN', 'email' => 'sabaruddin.damanik@equityfinance.co.id', 'username' => 'sabaruddin.damanik', 'password' => 'sabaruddin.damanik@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'S.093.120B.861', 'name' => 'SYLVIA SUSANTI', 'karep_code' => 'SBY', 'email' => 'sylvia.susanti@equityfinance.co.id', 'username' => 'sylvia.susanti', 'password' => 'sylvia.susanti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'S.094.120B.880', 'name' => 'SEVI DIAN NIRWANA', 'karep_code' => 'KPNO', 'email' => 'sevi.dian@equityfinance.co.id', 'username' => 'sevi.dian', 'password' => 'sevi.dian@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'S.095.120B.892', 'name' => 'SATRIYO ADI CAHYONO', 'karep_code' => 'SBY', 'email' => 'satriyo.adi@equityfinance.co.id', 'username' => 'satriyo.adi', 'password' => 'satriyo.adi@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.024.120B.551', 'name' => 'TIARA NOVIKA', 'karep_code' => 'KPNO', 'email' => 'tiara.novika@equityfinance.co.id', 'username' => 'tiara.novika', 'password' => 'tiara.novika@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'T.026.120B.584', 'name' => 'TATA STRATA', 'karep_code' => 'SBY', 'email' => 'tata.strata@equityfinance.co.id', 'username' => 'tata.strata', 'password' => 'tata.strata@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.028.120B.660', 'name' => 'THOMAS PATTIHAWEAN', 'karep_code' => 'PLG', 'email' => 'thomas.pattihawean@equityfinance.co.id', 'username' => 'thomas.pattihawean', 'password' => 'thomas.pattihawean@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.030.120B.752', 'name' => 'THERESIA ELLA SURYANI DAUD', 'karep_code' => 'JKU', 'email' => 'ella.suryani@equityfinance.co.id', 'username' => 'ella.suryani', 'password' => 'ella.suryani@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.033.120B.791', 'name' => 'TRIANA JULIANIAR ILHAMI', 'karep_code' => 'BSD', 'email' => 'triana.julianiar@equityfinance.co.id', 'username' => 'triana.julianiar', 'password' => 'triana.julianiar@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.034.120B.844', 'name' => 'TRI YANTI WANA WIJAYA', 'karep_code' => 'MLG', 'email' => 'tri.yanti@equityfinance.co.id', 'username' => 'tri.yanti', 'password' => 'tri.yanti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'T.035.120B.855', 'name' => 'TATYANA CITRA IKA SULYATI', 'karep_code' => 'KPNO', 'email' => 'tatyana.citra@equityfinance.co.id', 'username' => 'tatyana.citra', 'password' => 'tatyana.citra@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'U.005.120B.750', 'name' => 'URSULA PUTU DHEA ADINDA', 'karep_code' => 'DPS', 'email' => 'ursula.dhea@equityfinance.co.id', 'username' => 'ursula.dhea', 'password' => 'ursula.dhea@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'V.006.120B.606', 'name' => 'VALENTINA MAHARANI', 'karep_code' => 'PLG', 'email' => 'valentina.maharani@equityfinance.co.id', 'username' => 'valentina.maharani', 'password' => 'valentina.maharani@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'W.008.120B.625', 'name' => 'WISNU BRATA', 'karep_code' => 'KPNO', 'email' => 'wisnu.brata@equityfinance.co.id', 'username' => 'wisnu.brata', 'password' => 'wisnu.brata@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'W.010.120B.711', 'name' => 'WAHYU ADITYA ANHAR', 'karep_code' => 'MLG', 'email' => 'wahyu.aditya@equityfinance.co.id', 'username' => 'wahyu.aditya', 'password' => 'wahyu.aditya@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'W.011.120B.845', 'name' => 'WIGA ENANTI', 'karep_code' => 'SMG', 'email' => 'wiga.enanti@equityfinance.co.id', 'username' => 'wiga.enanti', 'password' => 'wiga.enanti@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'Y.023.120B.537', 'name' => 'YENNY PURBA', 'karep_code' => 'PBR', 'email' => 'yenny.purba@equityfinance.co.id', 'username' => 'yenny.purba', 'password' => 'yenny.purba@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'Y.024.120B.555', 'name' => 'YENNI SUPIYANTI', 'karep_code' => 'PBR', 'email' => 'yenni.supiyanti@equityfinance.co.id', 'username' => 'yenni.supiyanti', 'password' => 'yenni.supiyanti@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        ['nip' => 'Y.028.120B.576', 'name' => 'YOVITA BESRUL', 'karep_code' => 'KPNO', 'email' => 'yovita.besrul@equityfinance.co.id', 'username' => 'yovita.besrul', 'password' => 'yovita.besrul@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual']],
+        // ['nip' => 'Y.031.120B.658', 'name' => 'YENDI PUTRA M RADIGUNA', 'karep_code' => 'KPNO', 'email' => 'yendi.pmr@equityfinance.co.id', 'username' => 'yendi.pmr', 'password' => 'yendi.pmr@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        ['nip' => 'Y.033.120B.666', 'name' => 'YOHANES GALANG SUSETYAWAN', 'karep_code' => 'KPNO', 'email' => 'galang.ys@equityfinance.co.id', 'username' => 'galang.ys', 'password' => 'galang.ys@2024', 'roles' => ['superadmin'], 'department_id' => '7', 'position' => 'SPV IT', 'supervisor_id' => '6'],
+        ['nip' => 'S.085.120B.798', 'name' => 'SUROSO YULIANTO', 'karep_code' => 'KPNO', 'email' => 'suroso.yulianto@equityfinance.co.id', 'username' => 'suroso.yulianto', 'password' => 'suroso.yulianto@2024', 'roles' => ['superadmin'], 'department_id' => '7', 'position' => 'staff IT', 'supervisor_id' => '18'],
+        // ['nip' => 'Y.034.120B.688', 'name' => 'YUDI MARTINO SUSANTO', 'karep_code' => 'KPNO', 'email' => 'yudi.martino@equityfinance.co.id', 'username' => 'yudi.martino', 'password' => 'yudi.martino@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended']],
+        // ['nip' => 'Y.036.120B.703', 'name' => 'YOSI EKO YUDIANTO', 'karep_code' => 'DGO', 'email' => 'yosi.eko@equityfinance.co.id', 'username' => 'yosi.eko', 'password' => 'yosi.eko@2024', 'roles' => ['policy.user.branch', 'policy.user.extended']],
+        // ['nip' => 'Y.039.120B.813', 'name' => 'YOGA HERMANTO', 'karep_code' => 'DGO', 'email' => 'yoga.hermanto@equityfinance.co.id', 'username' => 'yoga.hermanto', 'password' => 'yoga.hermanto@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'Y.040.120B.864', 'name' => 'YUDHA HIDAYATULLAH', 'karep_code' => 'PLG', 'email' => 'yudha.hidayatullah@equityfinance.co.id', 'username' => 'yudha.hidayatullah', 'password' => 'yudha.hidayatullah@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'Y.041.120B.883', 'name' => 'YULI UMIYATI', 'karep_code' => 'JKU', 'email' => 'yuli.umiyati@equityfinance.co.id', 'username' => 'yuli.umiyati', 'password' => 'yuli.umiyati@2024', 'roles' => ['policy.user.branch']],
+        // ['nip' => 'Y.043.120B.895', 'name' => 'YOGI PURWANA ADHA', 'karep_code' => 'DGO', 'email' => 'yogi.purwana@equityfinance.co.id', 'username' => 'yogi.purwana', 'password' => 'yogi.purwana@2024', 'roles' => ['policy.user.branch']],
+        ['nip' => 'E.037.120B.905', 'name' => 'ERNIE WIDJAJA', 'karep_code' => 'KPNO', 'email' => 'ernie.widjaja@equityfinance.co.id', 'username' => 'ernie.widjaja', 'password' => 'ernie.widjaja@2024', 'roles' => ['policy.user.branch', 'approval_manual'], 'supervisor_id' => '2', 'department_id' => '1'],
+        ['nip' => 'C.006.120B.244', 'name' => 'CIPLUK ADININGTIAS', 'karep_code' => 'KPNO', 'email' => 'cipluk.adiningtyas@equityfinance.co.id', 'username' => 'cipluk.adiningtyas', 'password' => 'cipluk.adiningtyas@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '13', 'position' => 'ACCOUNTING MANAGER', 'supervisor_id' => '20'],
+        ['nip' => 'A.111.120B.902', 'name' => 'ANGGIE NUGRENING TYASTUTIE', 'karep_code' => 'KPNO', 'email' => 'anggie.nugrening@equityfinance.co.id', 'username' => 'anggie.nugrening', 'password' => 'anggie.nugrening@2024', 'roles' => ['policy.user.branch', 'approval_manual'], 'department_id' => '13', 'position' => 'FINANCE SUPERVISOR', 'supervisor_id' => '21'],
+        ['nip' => 'D.061.120B.911', 'name' => 'DANIEL WICAKSANA', 'karep_code' => 'KPNO', 'email' => 'daniel.wicaksana@equityfinance.co.id', 'username' => 'daniel.wicaksana', 'password' => 'daniel.wicaksana@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '22', 'position' => 'DGMO', 'supervisor_id' => '2'],
+        ['nip' => 'H.040.120B.627', 'name' => 'HERDIAN', 'karep_code' => 'KPNO', 'email' => 'herdian.ian@equityfinance.co.id', 'username' => 'herdian.ian', 'password' => 'herdian.ian@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '9', 'position' => 'Manager GA', 'supervisor_id' => '23'],
+        ['nip' => 'P.016.120B.764', 'name' => 'PRESCILLA MAGDALENA WAAS', 'karep_code' => 'KPNO', 'email' => 'prescilla.waas@equityfinance.co.id', 'username' => 'prescilla.waas', 'password' => 'prescilla.waas@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '9', 'position' => 'Staff GA', 'supervisor_id' => '24'],
+        ['nip' => 'M.075.120B.925', 'name' => 'MANCHO RESVANA', 'karep_code' => 'KPNO', 'email' => 'mancho.resvana@equityfinance.co.id', 'username' => 'mancho.resvana', 'password' => 'mancho.resvana@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '12', 'position' => 'PROCESS IMPROVEMENT MANAGER', 'supervisor_id' => '2'],
+        ['nip' => 'F.035.120B.869', 'name' => 'FIFI NURKUMALA', 'karep_code' => 'KPNO', 'email' => 'fifi.nurkumala@equityfinance.co.id', 'username' => 'fifi.nurkumala', 'password' => 'fifi.nurkumala@2024', 'roles' => ['policy.user.head_office', 'policy.user.extended', 'approval_manual'], 'department_id' => '12', 'position' => 'PROCESS IMPROVEMENT STAFF', 'supervisor_id' => '26'],
+
+    ];
+}
