@@ -3,17 +3,21 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     * @return void
-     */
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
+
+            // 🔹 Default UUID tergantung database driver
+            if (DB::getDriverName() === 'pgsql') {
+                $table->uuid('uuid')->unique()->default(DB::raw('gen_random_uuid()'));
+            } else {
+                $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
+            }
+
             $table->string('name');
             $table->string('username')->unique();
             $table->string('email')->unique();
@@ -25,9 +29,6 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
