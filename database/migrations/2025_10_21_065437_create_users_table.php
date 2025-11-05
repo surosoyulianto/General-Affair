@@ -25,6 +25,7 @@ return new class extends Migration {
             $table->string('password');
             $table->boolean('status')->default(1);
             $table->rememberToken();
+            $table->string('current_session_id')->nullable();
             $table->timestamps();
         });
     }

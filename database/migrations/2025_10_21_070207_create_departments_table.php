@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('directory');
+            $table->string('directorate');
             $table->boolean('is_branch')->default(0);
             $table->string('code')->unique();
             $table->boolean('status')->default(1);
