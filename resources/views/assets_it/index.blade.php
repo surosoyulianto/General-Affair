@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-semibold text-gray-800">Daftar Asset</h1>
         
         {{-- Tombol Create Asset --}}
-        <a href="{{ route('assets.create') }}" 
+        <a href="{{ route('assets_it.create') }}" 
            class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -29,7 +29,7 @@
             <thead class="bg-gray-100">
                 <tr>
                     <th class="px-4 py-2 text-left">No. Asset</th>
-                    <th class="px-4 py-2 text-left">Nama</th>
+                    <th class="px-4 py-2 text-left">Nama Asset</th>
                     <th class="px-4 py-2 text-left">Cabang</th>
                     <th class="px-4 py-2 text-left">Departemen</th>
                     <th class="px-4 py-2 text-left">Tipe Asset</th>
@@ -51,7 +51,7 @@
                 @forelse ($assets as $asset)
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-2">{{ $asset->asset_number }}</td>
-                        <td class="px-4 py-2">{{ $asset->name ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $asset->asset_name ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $asset->branch ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $asset->department ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $asset->type_asset ?? '-' }}</td>
@@ -71,12 +71,12 @@
                         </td>
                         <td class="px-4 py-2 truncate max-w-[200px]">{{ $asset->description ?? '-' }}</td>
                         <td class="px-4 py-2">
-                            {{ $asset->assignedUser->name ?? '-' }}
+                            {{ $asset->owner ?? '-' }}
                         </td>
                         <td class="px-4 py-2 text-right space-x-2">
-                            <a href="{{ route('assets.show', $asset) }}" class="text-blue-500 hover:underline">Lihat</a>
-                            <a href="{{ route('assets.edit', $asset) }}" class="text-yellow-500 hover:underline">Edit</a>
-                            <form action="{{ route('assets.destroy', $asset) }}" method="POST" class="inline">
+                            <a href="{{ route('assets_it.show', $asset) }}" class="text-blue-500 hover:underline">Lihat</a>
+                            <a href="{{ route('assets_it.edit', $asset) }}" class="text-yellow-500 hover:underline">Edit</a>
+                            <form action="{{ route('assets_it.destroy', $asset) }}" method="POST" class="inline">
                                 @csrf 
                                 @method('DELETE')
                                 <button onclick="return confirm('Yakin hapus asset ini?')" 

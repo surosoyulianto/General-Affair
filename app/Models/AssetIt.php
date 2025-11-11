@@ -5,50 +5,67 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Asset extends Model
+class AssetIt extends Model
 {
     use HasFactory;
 
+    protected $table = 'assets_it';
+
     protected $fillable = [
         'asset_number',
-        'name',
+        'asset_name',
         'branch',
+        'department',
         'type_asset',
-        'system_info',
         'brand',
         'model',
         'specification',
         'serial_number',
+        'ram_capacity',
+        'storage_type',
+        'storage_volume',
+        'os_edition',
+        'os_installed',
         'purchase_date',
         'purchase_value',
         'location',
-        'department',
         'status',
         'description',
-        'assigned_to',
+        'owner',
+        'user_id',
     ];
 
-    /**
-     * Relasi ke user (pengguna asset)
-     */
+    /** Relasi ke user (pengguna asset) */
     public function user()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    /**
-     * Relasi ke department (jika nanti punya tabel departments)
-     */
+    /** Relasi ke department */
     public function departmentRelation()
     {
         return $this->belongsTo(Department::class, 'department', 'name');
     }
 
-    /**
-     * Relasi ke branch (jika nanti punya tabel branches)
-     */
+    /** Relasi ke branch */
     public function branchRelation()
     {
         return $this->belongsTo(Branch::class, 'branch', 'name');
+    }
+
+    /** Helper attributes */
+    public function getAssignedUserNameAttribute()
+    {
+        return $this->user?->name ?? '-';
+    }
+
+    public function getDepartmentNameAttribute()
+    {
+        return $this->departmentRelation?->name ?? '-';
+    }
+
+    public function getBranchNameAttribute()
+    {
+        return $this->branchRelation?->name ?? '-';
     }
 }

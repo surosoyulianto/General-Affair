@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Asset;
+use App\Models\AssetIt;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\Branch;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -15,8 +16,9 @@ class AssetController extends Controller
      */
     public function index()
     {
-        $assets = Asset::with(['user', 'departmentRelation', 'branchRelation'])->paginate(10);
-        return view('assets.index', compact('assets'));
+        // Ambil semua data asset beserta relasi user
+        $assets = AssetIt::with('user')->paginate(10);
+        return view('assets_it.index', compact('assets'));
     }
 
     /**
@@ -28,7 +30,7 @@ class AssetController extends Controller
         $departments = Department::all();
         $branches = Branch::all();
 
-        return view('assets.create', compact('users', 'departments', 'branches'));
+        return view('assets_it.create', compact('users', 'departments', 'branches'));
     }
 
     /**
@@ -38,19 +40,19 @@ class AssetController extends Controller
     {
         $validated = $request->validate([
             'asset_number' => 'required|unique:assets_it,asset_number',
-            'name' => 'required|string|max:255',
+            'asset_name' => 'required|string|max:255',
             'branch' => 'nullable|string',
             'department' => 'nullable|string',
+            'type_asset' => 'nullable|string',
+            'brand' => 'nullable|string',
+            'model' => 'nullable|string',
             'specification' => 'nullable|string',
             'serial_number' => 'nullable|string',
             'ram_capacity' => 'nullable|string',
-            'type_asset' => 'nullable|string',
             'storage_type' => 'nullable|string',
             'storage_volume' => 'nullable|string',
             'os_edition' => 'nullable|string',
             'os_installed' => 'nullable|date',
-            'brand' => 'nullable|string',
-            'model' => 'nullable|string',
             'purchase_date' => 'nullable|date',
             'purchase_value' => 'nullable|string',
             'location' => 'nullable|string',
@@ -59,9 +61,12 @@ class AssetController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
         ]);
 
-        Asset::create($validated);
+        $validated['user_id'] = Auth::id(); 
 
-        return redirect()->route('assets.index')->with('success', 'Asset created successfully.');
+        AssetIt::create($validated);
+
+        return redirect()->route('assets_it.index')->with('success', 'Asset created successfully.');
+
     }
 
     /**
@@ -69,8 +74,8 @@ class AssetController extends Controller
      */
     public function show($id)
     {
-        $asset = Asset::with(['user', 'departmentRelation', 'branchRelation'])->findOrFail($id);
-        return view('assets.show', compact('asset'));
+        $asset = AssetIt::with('user')->findOrFail($id);
+        return view('assets_it.show', compact('asset'));
     }
 
     /**
@@ -78,12 +83,12 @@ class AssetController extends Controller
      */
     public function edit($id)
     {
-        $asset = Asset::findOrFail($id);
+        $asset = AssetIt::findOrFail($id);
         $users = User::all();
         $departments = Department::all();
         $branches = Branch::all();
 
-        return view('assets.edit', compact('asset', 'users', 'departments', 'branches'));
+        return view('assets_it.edit', compact('asset', 'users', 'departments', 'branches'));
     }
 
     /**
@@ -91,10 +96,10 @@ class AssetController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $asset = Asset::findOrFail($id);
+        $asset = AssetIt::findOrFail($id);
 
         $validated = $request->validate([
-            'asset_number' => 'required|unique:assets_it,asset_number,' . $id,
+            'asset_number' => 'required|unique:assets_it_it,asset_number,' . $asset->id,
             'name' => 'required|string|max:255',
             'branch' => 'nullable|string',
             'department' => 'nullable|string',
@@ -118,7 +123,7 @@ class AssetController extends Controller
 
         $asset->update($validated);
 
-        return redirect()->route('assets.index')->with('success', 'Asset updated successfully.');
+        return redirect()->route('assets_it.index')->with('success', 'Asset updated successfully.');
     }
 
     /**
@@ -126,9 +131,9 @@ class AssetController extends Controller
      */
     public function destroy($id)
     {
-        $asset = Asset::findOrFail($id);
+        $asset = AssetIt::findOrFail($id);
         $asset->delete();
 
-        return redirect()->route('assets.index')->with('success', 'Asset deleted successfully.');
+        return redirect()->route('assets_it.index')->with('success', 'Asset deleted successfully.');
     }
 }

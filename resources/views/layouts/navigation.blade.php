@@ -30,14 +30,17 @@
 
                         <div x-show="open" @click.away="open = false"
                             class="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                            <a href="{{ route('assets.index') }}"
+                            <!-- Asset IT -->
+                            <a href="{{ route('assets_it.index') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Asset IT
                             </a>
-                            <a href="{{ route('administrator.users.index') }}"
+
+                            <!-- Asset Non IT (sementara diarahkan ke route yang benar) -->
+                            {{-- <a href="{{ route('assets_non_it.index') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Asset Non IT
-                            </a>
+                            </a> --}}
                         </div>
                     </div>
 
@@ -59,6 +62,7 @@
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 User
                             </a>
+                            {{-- Tambahkan kembali kalau sudah ada --}}
                             {{-- <a href="{{ route('roles.index') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Role
@@ -99,10 +103,8 @@
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
                             <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
@@ -151,10 +153,8 @@
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
                     <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                        onclick="event.preventDefault(); this.closest('form').submit();">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>
