@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AssetIt extends Model
+class Assets extends Model
 {
     use HasFactory;
 
-    protected $table = 'assets_it';
+    protected $table = 'assets';
 
     protected $fillable = [
         'asset_number',
@@ -35,25 +35,26 @@ class AssetIt extends Model
         'user_id',
     ];
 
-    /** Relasi ke user (pengguna asset) */
+    protected $casts = [
+        'os_installed' => 'date',
+        'purchase_date' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    /** Relasi ke department */
     public function departmentRelation()
     {
         return $this->belongsTo(Department::class, 'department', 'name');
     }
 
-    /** Relasi ke branch */
     public function branchRelation()
     {
         return $this->belongsTo(Branch::class, 'branch', 'name');
     }
 
-    /** Helper attributes */
     public function getAssignedUserNameAttribute()
     {
         return $this->user?->name ?? '-';

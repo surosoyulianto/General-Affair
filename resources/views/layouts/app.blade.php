@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,12 +12,40 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Global Fix untuk Dropdown -->
+    <style>
+        /* Fix dropdown list item text */
+        select option {
+            color: #111 !important;
+            background-color: #fff !important;
+        }
+
+        /* Fix Chrome/Edge dropdown popup */
+        select {
+            color: #111 !important;
+            background-color: #fff !important;
+            -webkit-text-fill-color: #111 !important;
+        }
+
+        /* Extra fix khusus WebKit (Chrome/Edge/Safari) */
+        select::-ms-expand {
+            background: none;
+        }
+
+        /* Saat dibuka */
+        select:focus option {
+            color: #111 !important;
+            background-color: #fff !important;
+        }
+    </style>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900">
     <div class="min-h-screen">
-        @include('layouts.navigation') {{-- Navbar/Menu --}}
+        @include('layouts.navigation')
 
         <!-- Page Heading -->
         @isset($header)
@@ -33,4 +62,5 @@
         </main>
     </div>
 </body>
+
 </html>

@@ -15,3 +15,4 @@ require __DIR__.'/partials/profile.php';
 require __DIR__.'/partials/administrator/user.routes.php';
 require __DIR__.'/partials/auth.php';
 require __DIR__.'/partials/asset.routes.php';
+require __DIR__.'/partials/asset_transfer.routes.php';

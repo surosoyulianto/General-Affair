@@ -31,16 +31,15 @@
                         <div x-show="open" @click.away="open = false"
                             class="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                             <!-- Asset IT -->
-                            <a href="{{ route('assets_it.index') }}"
+                            <a href="{{ route('assets.index') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Asset IT
+                                Asset
                             </a>
-
-                            <!-- Asset Non IT (sementara diarahkan ke route yang benar) -->
-                            {{-- <a href="{{ route('assets_non_it.index') }}"
+                            <!-- Asset Transfer -->
+                            <a href="{{ route('asset_transfers.index') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Asset Non IT
-                            </a> --}}
+                                Asset Transfer 
+                            </a>
                         </div>
                     </div>
 

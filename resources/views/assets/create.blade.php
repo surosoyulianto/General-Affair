@@ -15,7 +15,7 @@
             </div>
         @endif
 
-        <form action="{{ route('assets_it.store') }}" method="POST" class="bg-white p-6 rounded shadow">
+        <form action="{{ route('assets.store') }}" method="POST" class="bg-white p-6 rounded shadow">
             @csrf
 
             <div class="grid grid-cols-2 gap-4">
@@ -178,7 +178,7 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <a href="{{ route('assets_it.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                <a href="{{ route('assets.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
                     Cancel
                 </a>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 ml-3">

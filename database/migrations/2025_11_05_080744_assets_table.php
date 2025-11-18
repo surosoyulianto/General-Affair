@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('assets_it', function (Blueprint $table) {
+        Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->string('asset_number')->unique();
             $table->string('asset_name')->nullable();
@@ -49,6 +49,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('assets_it');
+        Schema::dropIfExists('assets');
     }
 };

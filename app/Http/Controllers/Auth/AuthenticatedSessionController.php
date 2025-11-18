@@ -31,31 +31,34 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // Tentukan apakah input adalah email atau username
         $login_type = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Cek apakah user ada di database
-        $user = \App\Models\User::where($login_type, $request->login)->first();
+        // Cek user
+        $user = User::where($login_type, $request->login)->first();
 
+        // 3️⃣ Hapus session yang sudah expired
+        DB::table('sessions')
+            ->where('last_activity', '<', now()->subMinutes(config('session.lifetime'))->timestamp)
+            ->delete();
+
+        // 4️⃣ Cek session lama masih aktif?
         if ($user && $user->current_session_id) {
-            // 🔎 Cek apakah session lama masih aktif di tabel sessions
+
             $isStillActive = DB::table('sessions')
                 ->where('id', $user->current_session_id)
                 ->exists();
 
             if ($isStillActive) {
-                // 🚫 Tolak login baru, user masih aktif di tempat lain
                 return back()->withErrors([
                     'login' => 'Akun ini sedang digunakan di perangkat lain. Silakan logout dari sana terlebih dahulu.',
                 ]);
             }
         }
 
-        // Jika tidak aktif atau belum pernah login, lanjutkan login normal
+        // 5️⃣ Login normal
         if (Auth::attempt([$login_type => $request->login, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            /** @var \App\Models\User $user */
             $user = Auth::user();
             $user->current_session_id = Session::getId();
             $user->save();
@@ -63,11 +66,11 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended('/dashboard');
         }
 
-        // Jika password salah
         return back()->withErrors([
             'login' => __('The provided credentials do not match our records.'),
         ]);
     }
+
 
     /**
      * Destroy an authenticated session.
@@ -78,13 +81,14 @@ class AuthenticatedSessionController extends Controller
         if ($userId) {
             User::where('id', $userId)->update(['current_session_id' => null]);
         }
-        // Logout user dari guard
+
         Auth::guard('web')->logout();
 
-        // Hapus session dari sisi server & browser
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Use the global helper in case $request is not available in some contexts
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
 
         return redirect('/login');
     }
+
 }
