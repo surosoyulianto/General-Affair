@@ -157,13 +157,13 @@
                     </select>
                 </div>
 
-                {{-- Select Owner --}}
+                {{-- Select User --}}
                 <div class="col-span-2">
-                    <label class="block font-semibold">Select Owner</label>
-                    <select name="owner" class="w-full border rounded p-2">
-                        <option value="">-- Select Owner --</option>
+                    <label class="block font-semibold">Select User</label>
+                    <select name="user_id" class="w-full border rounded p-2">
+                        <option value="">-- Select User --</option>
                         @foreach ($users as $user)
-                            <option value="{{ $user->id }}" {{ old('owner') == $user->id ? 'selected' : '' }}>
+                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
                                 {{ $user->name }}
                             </option>
                         @endforeach

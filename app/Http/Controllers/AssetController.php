@@ -16,9 +16,13 @@ class AssetController extends Controller
      */
     public function index()
     {
-        // Ambil semua data asset beserta relasi user
+        // Ambil assets beserta relasi user
         $assets = Assets::with('user')->paginate(10);
-        return view('assets.index', compact('assets'));
+
+        // Ambil daftar user untuk dropdown
+        $users = User::select('id', 'name')->orderBy('name')->get();
+
+        return view('assets.index', compact('assets', 'users'));
     }
 
     /**
@@ -26,11 +30,12 @@ class AssetController extends Controller
      */
     public function create()
     {
+        $assets = Assets::all();
         $users = User::all();
-        $departments = Department::all();
         $branches = Branch::all();
+        $departments = Department::all();
 
-        return view('assets.create', compact('users', 'departments', 'branches'));
+        return view('assets.create', compact('assets', 'users', 'branches', 'departments'));
     }
 
     /**
@@ -58,15 +63,12 @@ class AssetController extends Controller
             'location' => 'nullable|string',
             'status' => 'nullable|string',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
         ]);
-
-        $validated['user_id'] = Auth::id();
 
         Assets::create($validated);
 
         return redirect()->route('assets.index')->with('success', 'Asset created successfully.');
-
     }
 
     /**
@@ -139,4 +141,20 @@ class AssetController extends Controller
 
         return redirect()->route('assets.index')->with('success', 'Asset deleted successfully.');
     }
+    public function getAssetDetail($id)
+    {
+        $asset = Assets::with(['user', 'departmentRelation', 'branchRelation'])->find($id);
+
+        return response()->json($asset);
+    }
+    public function detailByNumber($asset_number)
+    {
+        dd($asset_number);
+        $asset = Assets::where('asset_number', $asset_number)
+            ->with(['user', 'branch_relation', 'department_relation'])
+            ->first();
+
+        return response()->json($asset);
+    }
+
 }

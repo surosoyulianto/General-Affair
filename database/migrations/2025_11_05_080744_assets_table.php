@@ -32,10 +32,6 @@ return new class extends Migration {
             $table->string('status')->default('active');
             $table->text('description')->nullable();
 
-            // relasi ke user yang memiliki/ditugaskan
-            $table->unsignedBigInteger('owner')->nullable();
-            $table->foreign('owner')->references('id')->on('users')->onDelete('set null');
-
             // user_id: pencatat data (creator)
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');

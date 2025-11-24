@@ -28,14 +28,12 @@ class AssetTransferController extends Controller
      */
     public function create()
     {
-        $assets = Assets::all();
+        $assets = Assets::with(['user'])->get();
         $users = User::all();
         $branches = Branch::all();
         $departments = Department::all();
 
-        return view('asset_transfers.create', compact(
-            'assets', 'users', 'branches', 'departments'
-        ));
+        return view('asset_transfers.create', compact('assets', 'users', 'branches', 'departments'));
     }
 
     /**
@@ -43,41 +41,47 @@ class AssetTransferController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi input dari Blade
         $request->validate([
-            'asset_id'      => 'required',
-            'to_user_id'    => 'required',
+            'asset_id' => 'required',
+            'owner_from' => 'required',
+            'owner_to' => 'required',
+            'branch_from' => 'required',
+            'branch_to' => 'required',
+            'department_from' => 'required',
+            'department_to' => 'required',
             'transfer_date' => 'required|date',
         ]);
 
-        // Ambil data aset sekarang
+        // Ambil data asset
         $asset = Assets::findOrFail($request->asset_id);
 
-        // Simpan log transfer
+        // Simpan ke tabel asset_transfers
         $transfer = AssetTransfer::create([
-            'asset_id'           => $request->asset_id,
+            'asset_id' => $request->asset_id,
 
-            'from_user_id'       => $asset->user_id ?? null,
-            'to_user_id'         => $request->to_user_id,
+            'from_user_id' => $request->owner_from,
+            'to_user_id' => $request->owner_to,
 
-            'from_branch_id'     => $asset->branch ?? null,
-            'to_branch_id'       => $request->to_branch_id ?? $asset->branch,
+            'from_branch_id' => $request->branch_from,
+            'to_branch_id' => $request->branch_to,
 
-            'from_department_id' => $asset->department ?? null,
-            'to_department_id'   => $request->to_department_id ?? $asset->department,
+            'from_department_id' => $request->department_from,
+            'to_department_id' => $request->department_to,
 
-            'transfer_date'      => $request->transfer_date,
-            'reason'             => $request->reason,
+            'transfer_date' => $request->transfer_date,
+            'reason' => $request->notes,
         ]);
 
-        // Update aset: owner baru & lokasi baru
+        // Update data asset sesuai perubahan terakhir
         $asset->update([
-            'user_id'    => $request->to_user_id,
-            'branch'     => $request->to_branch_id ?? $asset->branch,
-            'department' => $request->to_department_id ?? $asset->department,
+            'user_id' => $request->user_id,
+            'branch' => $request->branch,
+            'department' => $request->department,
         ]);
 
         return redirect()->route('asset_transfers.index')
-            ->with('success', 'Asset transfer berhasil disimpan.');
+            ->with('success', 'Transfer aset berhasil disimpan.');
     }
 
     /**
@@ -86,9 +90,13 @@ class AssetTransferController extends Controller
     public function show($id)
     {
         $transfer = AssetTransfer::with([
-            'asset', 'fromUser', 'toUser',
-            'fromBranch', 'toBranch',
-            'fromDepartment', 'toDepartment'
+            'asset',
+            'fromUser',
+            'toUser',
+            'fromBranch',
+            'toBranch',
+            'fromDepartment',
+            'toDepartment'
         ])->findOrFail($id);
 
         return view('asset_transfers.show', compact('transfer'));
@@ -107,7 +115,11 @@ class AssetTransferController extends Controller
         $departments = Department::all();
 
         return view('asset_transfers.edit', compact(
-            'transfer', 'assets', 'users', 'branches', 'departments'
+            'transfer',
+            'assets',
+            'users',
+            'branches',
+            'departments'
         ));
     }
 
@@ -117,26 +129,26 @@ class AssetTransferController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'asset_id'      => 'required',
-            'to_user_id'    => 'required',
+            'asset_id' => 'required',
+            'to_user_id' => 'required',
             'transfer_date' => 'required|date',
         ]);
 
         $transfer = AssetTransfer::findOrFail($id);
 
         $transfer->update([
-            'asset_id'           => $request->asset_id,
-            'from_user_id'       => $transfer->from_user_id,
-            'to_user_id'         => $request->to_user_id,
+            'asset_id' => $request->asset_id,
+            'from_user_id' => $transfer->from_user_id,
+            'to_user_id' => $request->to_user_id,
 
-            'from_branch_id'     => $transfer->from_branch_id,
-            'to_branch_id'       => $request->to_branch_id,
+            'from_branch_id' => $transfer->from_branch_id,
+            'to_branch_id' => $request->to_branch_id,
 
             'from_department_id' => $transfer->from_department_id,
-            'to_department_id'   => $request->to_department_id,
+            'to_department_id' => $request->to_department_id,
 
-            'transfer_date'      => $request->transfer_date,
-            'reason'             => $request->reason,
+            'transfer_date' => $request->transfer_date,
+            'reason' => $request->reason,
         ]);
 
         return redirect()->route('asset_transfers.index')

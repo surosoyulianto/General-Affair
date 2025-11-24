@@ -31,8 +31,7 @@ class Assets extends Model
         'location',
         'status',
         'description',
-        'owner',
-        'user_id',
+        'user_id', // sesuai tabel
     ];
 
     protected $casts = [
@@ -40,33 +39,35 @@ class Assets extends Model
         'purchase_date' => 'date',
     ];
 
+    /**
+     * Relasi ke user (pemilik aset)
+     */
     public function user()
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function departmentRelation()
-    {
-        return $this->belongsTo(Department::class, 'department', 'name');
-    }
-
-    public function branchRelation()
-    {
-        return $this->belongsTo(Branch::class, 'branch', 'name');
-    }
-
+    /**
+     * Accessor untuk nama user (fallback '-')
+     */
     public function getAssignedUserNameAttribute()
     {
         return $this->user?->name ?? '-';
     }
 
+    /**
+     * Karena department hanya teks biasa
+     */
     public function getDepartmentNameAttribute()
     {
-        return $this->departmentRelation?->name ?? '-';
+        return $this->department ?? '-';
     }
 
+    /**
+     * Karena branch hanya teks biasa
+     */
     public function getBranchNameAttribute()
     {
-        return $this->branchRelation?->name ?? '-';
+        return $this->branch ?? '-';
     }
 }
