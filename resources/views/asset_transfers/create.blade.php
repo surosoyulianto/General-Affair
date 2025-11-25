@@ -2,6 +2,9 @@
 
 @section('content')
 
+    {{-- Select2 CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         select option {
             color: #000 !important;
@@ -37,8 +40,7 @@
                     {{-- Nomor Asset --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Nomor Aset</label>
-                        <select id="asset_id" name="asset_id"
-                            class="w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
+                        <select id="asset_id" name="asset_id" class="w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
                             <option value="">-- Pilih Nomor Aset --</option>
                             @foreach ($assets as $asset)
                                 <option value="{{ $asset->asset_number }}">
@@ -143,10 +145,22 @@
     </div>
 
     {{-- ================== AJAX SCRIPT ================== --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
+        // Inisialisasi Select2 untuk Nomor Asset
+        $(document).ready(function() {
+            $('#asset_id').select2({
+                placeholder: "-- Pilih Nomor Aset --",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        // AJAX untuk detail asset
         document.getElementById('asset_id').addEventListener('change', function() {
             let assetNumber = this.value; 
-
             if (!assetNumber) return;
 
             fetch('/asset/detail-by-number/' + assetNumber)
