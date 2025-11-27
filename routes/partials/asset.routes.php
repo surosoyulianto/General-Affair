@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetTransferController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
+
+    // Asset Resource
     Route::resource('assets', AssetController::class)->names([
         'index' => 'assets.index',
         'create' => 'assets.create',
@@ -14,6 +17,10 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'assets.destroy',
     ]);
 
-    // ➕ Route AJAX ambil detail asset
-    Route::get('/asset/detail-by-number/{asset_number}', [AssetController::class, 'detailByNumber']);
+    // Endpoint AJAX — pakai query parameter agar nomor asset mengandung "/"
+    Route::get('/asset/detail-by-number', [AssetController::class, 'detailByNumber'])
+        ->name('asset.detail-by-number');
+
+    // Asset Transfer
+    Route::resource('asset_transfers', AssetTransferController::class);
 });
