@@ -2,193 +2,186 @@
 
 @section('content')
 
-    {{-- Select2 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-    <div class="max-w-5xl mx-auto px-6 py-6">
-        <h1 class="text-2xl font-semibold text-gray-800 mb-6">Buat Transfer Aset</h1>
+<div class="max-w-5xl mx-auto px-6 py-6">
 
-        {{-- Error --}}
-        @if ($errors->any())
-            <div class="bg-red-100 text-red-800 px-4 py-3 rounded mb-6 border border-red-300">
-                <strong>Error:</strong> Periksa kembali formulir.
-                <ul class="list-disc ml-6 mt-2">
-                    @foreach ($errors->all() as $e)
-                        <li>{{ $e }}</li>
+    <h1 class="text-2xl font-semibold text-gray-800 mb-6">Buat Transfer Aset</h1>
+
+    {{-- ERROR ALERT --}}
+    @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+            <strong>Error: Periksa kembali formulir.</strong>
+            <ul class="mt-2 list-disc pl-6">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('asset_transfers.store') }}" method="POST">
+        @csrf
+
+        {{-- PILIH ASET --}}
+        <div class="mb-6">
+            <label class="block mb-1 text-sm font-medium">Pilih Aset</label>
+            <select id="asset_id" name="asset_id" class="select2 w-full border-gray-300 rounded-lg" required>
+                <option value="">-- Pilih Aset --</option>
+                @foreach($assets as $asset)
+                    <option value="{{ $asset->id }}">
+                        {{ $asset->asset_number }} - {{ $asset->asset_name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- =======================
+             USER
+        ======================== --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            {{-- USER FROM --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">User Awal</label>
+                <select id="from_user_id" name="from_user_id"
+                    class="w-full border-gray-300 bg-gray-100 rounded-lg" readonly>
+                    <option value="">-- Belum Ada --</option>
+                    @foreach ($users as $u)
+                        <option value="{{ $u->id }}">{{ $u->name }}</option>
                     @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('asset_transfers.store') }}" method="POST"
-            class="bg-white shadow rounded-lg p-6 border border-gray-200">
-            @csrf
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                {{-- ===============================
-                    KIRI
-                ================================ --}}
-                <div class="space-y-4">
-
-                    {{-- Nomor Aset --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Nomor Aset</label>
-                        <select id="asset_id" name="asset_id"
-                            class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
-                            <option value="">-- Pilih Nomor Aset --</option>
-                            @foreach ($assets as $a)
-                                <option value="{{ $a->id }}">
-                                    {{ $a->asset_number }} - {{ $a->asset_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- User Awal (DISABLED) --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">User Awal</label>
-                        <select id="owner_from_display"
-                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
-                            <option value="">-- Pilih User Awal --</option>
-                            @foreach ($users as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" id="owner_from" name="owner_from">
-                    </div>
-
-                    {{-- User Baru --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">User Baru</label>
-                        <select name="user_to" class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black"
-                            required>
-                            <option value="">-- Pilih User Baru --</option>
-                            @foreach ($users as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Tanggal Transfer --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Tanggal Transfer Aset</label>
-                        <input type="date" name="transfer_date"
-                            class="w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
-                    </div>
-                </div>
-
-                {{-- ===============================
-                    KANAN
-                ================================ --}}
-                <div class="space-y-4">
-
-                    {{-- Cabang Awal --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Cabang Awal</label>
-                        <select id="branch_from_display"
-                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
-                            <option value="">-- Pilih Cabang Awal --</option>
-                            @foreach ($branches as $b)
-                                <option value="{{ $b->name }}">{{ $b->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" id="branch_from" name="branch_from">
-                    </div>
-
-                    {{-- Cabang Baru --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Cabang Baru</label>
-                        <select name="branch_to" class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black"
-                            required>
-                            <option value="">-- Pilih Cabang Baru --</option>
-                            @foreach ($branches as $b)
-                                <option value="{{ $b->name }}">{{ $b->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Departemen Awal --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Departemen Awal</label>
-                        <select id="department_from_display"
-                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
-                            <option value="">-- Pilih Departemen Awal --</option>
-                            @foreach ($departments as $d)
-                                <option value="{{ $d->name }}">{{ $d->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" id="department_from" name="department_from">
-                    </div>
-
-                    {{-- Departemen Baru --}}
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Departemen Baru</label>
-                        <select name="department_to"
-                            class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
-                            <option value="">-- Pilih Departemen Baru --</option>
-                            @foreach ($departments as $d)
-                                <option value="{{ $d->name }}">{{ $d->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+                </select>
             </div>
 
-            {{-- Keterangan --}}
-            <div class="mt-4">
-                <label class="block text-sm font-medium mb-1">Keterangan</label>
-                <textarea name="notes" rows="3" class="w-full border-gray-300 rounded-md p-2"></textarea>
+            {{-- USER TO --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">User Baru</label>
+                <select id="to_user_id" name="to_user_id"
+                    class="select2 w-full border-gray-300 rounded-lg" required>
+                    <option value="">-- Pilih User Baru --</option>
+                    @foreach ($users as $u)
+                        <option value="{{ $u->id }}">{{ $u->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
-            {{-- Tombol --}}
-            <div class="flex gap-3 mt-6">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
-                    Simpan
-                </button>
+        </div>
 
-                <a href="{{ route('asset_transfers.index') }}"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                    Batal
-                </a>
+        {{-- =======================
+             BRANCH
+        ======================== --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            {{-- BRANCH FROM --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Branch Awal</label>
+                <select id="from_branch_id" name="from_branch_id"
+                    class="w-full bg-gray-100 border-gray-300 rounded-lg" readonly>
+                    <option value="">-- Tidak Ada --</option>
+                    @foreach ($branches as $b)
+                        <option value="{{ $b->id }}">{{ $b->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
-        </form>
-    </div>
+            {{-- BRANCH TO --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Branch Baru</label>
+                <select id="to_branch_id" name="to_branch_id"
+                    class="select2 w-full border-gray-300 rounded-lg" required>
+                    <option value="">-- Pilih Branch Baru --</option>
+                    @foreach ($branches as $b)
+                        <option value="{{ $b->id }}">{{ $b->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-    {{-- JS --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        </div>
 
-    <script>
-        $(function() {
-            $('.select2').select2({
-                width: '100%',
-                allowClear: true
+        {{-- =======================
+             DEPARTMENT
+        ======================== --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            {{-- DEPARTMENT FROM --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Department Awal</label>
+                <select id="from_department_id" name="from_department_id"
+                    class="w-full bg-gray-100 border-gray-300 rounded-lg" readonly>
+                    <option value="">-- Tidak Ada --</option>
+                    @foreach ($departments as $d)
+                        <option value="{{ $d->id }}">{{ $d->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- DEPARTMENT TO --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Department Baru</label>
+                <select id="to_department_id" name="to_department_id"
+                    class="select2 w-full border-gray-300 rounded-lg" required>
+                    <option value="">-- Pilih Department Baru --</option>
+                    @foreach ($departments as $d)
+                        <option value="{{ $d->id }}">{{ $d->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+        </div>
+
+        {{-- DATE --}}
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-1">Tanggal Transfer</label>
+            <input type="date" name="transfer_date"
+                value="{{ date('Y-m-d') }}"
+                class="w-full border-gray-300 rounded-lg p-2" required>
+        </div>
+
+        {{-- REASON --}}
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-1">Alasan</label>
+            <textarea name="reason" rows="3" class="w-full border-gray-300 rounded-lg p-2"></textarea>
+        </div>
+
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
+            Simpan
+        </button>
+
+    </form>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $('.select2').select2();
+
+    $('#asset_id').on('change', function () {
+        let id = $(this).val();
+        if (!id) return;
+
+        $.get('/asset/detail-by-id', { asset_id: id }, function(data) {
+
+            // USER ID
+            $('#from_user_id').val(data.user_id).trigger('change');
+
+            // MATCH BRANCH STRING → BRANCH ID
+            $("#from_branch_id option").each(function(){
+                if ($(this).text().trim() === data.branch) {
+                    $('#from_branch_id').val($(this).val()).trigger('change');
+                }
             });
 
-            $('#asset_id').on('change', function() {
-                const assetId = $(this).val();
-                if (!assetId) return;
-
-                fetch(`/asset/detail-by-id?asset_id=${assetId}`)
-                    .then(r => r.json())
-                    .then(data => {
-
-                        // USER AWAL
-                        $('#owner_from_display').val(data.user_id || '').trigger('change');
-                        $('#owner_from').val(data.user_id || '');
-
-                        // BRANCH AWAL (STRING)
-                        $('#branch_from_display').val(data.branch || '').trigger('change');
-                        $('#branch_from').val(data.branch || '');
-
-                        // DEPARTMENT AWAL (STRING)
-                        $('#department_from_display').val(data.department || '').trigger('change');
-                        $('#department_from').val(data.department || '');
-                    })
-                    .catch(err => console.error('Fetch error:', err));
+            // MATCH DEPARTMENT STRING → DEPARTMENT ID
+            $("#from_department_id option").each(function(){
+                if ($(this).text().trim() === data.department) {
+                    $('#from_department_id').val($(this).val()).trigger('change');
+                }
             });
+
         });
-    </script>
+    });
+</script>
+
 @endsection

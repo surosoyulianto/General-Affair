@@ -45,37 +45,31 @@ class AssetTransferController extends Controller
     {
         $validated = $request->validate([
             'asset_id' => 'required|exists:assets,id',
-            'owner_from' => 'required|exists:users,id',
-            'user_to' => 'required|exists:users,id',
-            'branch_from' => 'required',
-            'branch_to' => 'required',
-            'department_from' => 'required',
-            'department_to' => 'required',
+
+            'from_user_id' => 'required|exists:users,id',
+            'to_user_id' => 'required|exists:users,id',
+
+            'from_branch_id' => 'required|exists:branches,id',
+            'to_branch_id' => 'required|exists:branches,id',
+
+            'from_department_id' => 'required|exists:departments,id',
+            'to_department_id' => 'required|exists:departments,id',
+
             'transfer_date' => 'required|date',
-            'notes' => 'nullable|string'
+            'reason' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
 
         try {
             // Simpan transfer
-            $transfer = AssetTransfer::create([
-                'asset_id' => $validated['asset_id'],
-                'owner_from' => $validated['owner_from'],
-                'owner_to' => $validated['user_to'],
-                'branch_from' => $validated['branch_from'],
-                'branch_to' => $validated['branch_to'],
-                'department_from' => $validated['department_from'],
-                'department_to' => $validated['department_to'],
-                'transfer_date' => $validated['transfer_date'],
-                'notes' => $validated['notes'] ?? null,
-            ]);
+            $transfer = AssetTransfer::create($validated);
 
             // Update asset agar pindah user/cabang/departemen
             Assets::where('id', $validated['asset_id'])->update([
-                'user_id' => $validated['user_to'],
-                'branch' => $validated['branch_to'],
-                'department' => $validated['department_to'],
+                'user_id' => $validated['to_user_id'],
+                'branch' => $validated['to_branch_id'],          // sesuai tabel assets
+                'department' => $validated['to_department_id'],  // sesuai tabel assets
             ]);
 
             DB::commit();
@@ -91,6 +85,7 @@ class AssetTransferController extends Controller
             return back()->withErrors('Gagal menyimpan transfer aset.');
         }
     }
+
     /**
      * Detail transfer asset.
      */
@@ -136,15 +131,19 @@ class AssetTransferController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'asset_id' => 'required',
-            'to_user_id' => 'required',
+            'asset_id' => 'required|exists:assets,id',
+            'to_user_id' => 'required|exists:users,id',
+            'to_branch_id' => 'required|exists:branches,id',
+            'to_department_id' => 'required|exists:departments,id',
             'transfer_date' => 'required|date',
+            'reason' => 'nullable|string',
         ]);
 
         $transfer = AssetTransfer::findOrFail($id);
 
         $transfer->update([
             'asset_id' => $request->asset_id,
+
             'from_user_id' => $transfer->from_user_id,
             'to_user_id' => $request->to_user_id,
 
@@ -156,6 +155,13 @@ class AssetTransferController extends Controller
 
             'transfer_date' => $request->transfer_date,
             'reason' => $request->reason,
+        ]);
+
+        // UPDATE asset saat edit
+        Assets::where('id', $request->asset_id)->update([
+            'user_id' => $request->to_user_id,
+            'branch' => $request->to_branch_id,
+            'department' => $request->to_department_id,
         ]);
 
         return redirect()->route('asset_transfers.index')
