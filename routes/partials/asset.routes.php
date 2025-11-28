@@ -17,9 +17,8 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'assets.destroy',
     ]);
 
-    // Endpoint AJAX — pakai query parameter agar nomor asset mengandung "/"
-    Route::get('/asset/detail-by-number', [AssetController::class, 'detailByNumber'])
-        ->name('asset.detail-by-number');
+    // Endpoint AJAX detail asset by ID
+    Route::get('/asset/detail-by-id', [AssetController::class, 'detailById']);
 
     // Asset Transfer
     Route::resource('asset_transfers', AssetTransferController::class);

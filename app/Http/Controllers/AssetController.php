@@ -147,23 +147,29 @@ class AssetController extends Controller
 
         return response()->json($asset);
     }
-
-    public function detailByNumber(Request $request)
+    public function detailById(Request $request)
     {
-        $assetNumber = $request->query('asset_number');
+        $assetId = $request->query('asset_id');
 
-        if (!$assetNumber) {
-            return response()->json(['error' => 'asset_number is required'], 400);
+        if (!$assetId) {
+            return response()->json(['error' => 'asset_id is required'], 400);
         }
 
-        $asset = Assets::where('asset_number', $assetNumber)->first();
+        $asset = Assets::with('user')->where('id', $assetId)->first();
 
         if (!$asset) {
             return response()->json(['error' => 'Asset not found'], 404);
         }
 
         return response()->json([
+            'id' => $asset->id,
+            'asset_number' => $asset->asset_number,
+            'asset_name' => $asset->asset_name,
+
+            // 🔥 USER AWAL
             'user_id' => $asset->user_id,
+
+            // 🔥 BRANCH & DEPT = STRING (langsung ambil dari assets table)
             'branch' => $asset->branch,
             'department' => $asset->department,
         ]);

@@ -43,63 +43,54 @@ class AssetTransferController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $request->validate([
+        $validated = $request->validate([
             'asset_id' => 'required|exists:assets,id',
-            'owner_from' => 'required',
-            'owner_to' => 'required',
+            'owner_from' => 'required|exists:users,id',
+            'user_to' => 'required|exists:users,id',
             'branch_from' => 'required',
             'branch_to' => 'required',
             'department_from' => 'required',
             'department_to' => 'required',
             'transfer_date' => 'required|date',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string'
         ]);
 
-        // Gunakan transaksi agar atomic
         DB::beginTransaction();
 
         try {
-            // Ambil asset
-            $asset = Assets::findOrFail($request->asset_id);
-
-            // Simpan riwayat transfer
+            // Simpan transfer
             $transfer = AssetTransfer::create([
-                'asset_id' => $request->asset_id,
-
-                'from_user_id' => $request->owner_from,
-                'to_user_id' => $request->owner_to,
-
-                'from_branch_id' => $request->branch_from,
-                'to_branch_id' => $request->branch_to,
-
-                'from_department_id' => $request->department_from,
-                'to_department_id' => $request->department_to,
-
-                'transfer_date' => $request->transfer_date,
-                'reason' => $request->notes,
+                'asset_id' => $validated['asset_id'],
+                'owner_from' => $validated['owner_from'],
+                'owner_to' => $validated['user_to'],
+                'branch_from' => $validated['branch_from'],
+                'branch_to' => $validated['branch_to'],
+                'department_from' => $validated['department_from'],
+                'department_to' => $validated['department_to'],
+                'transfer_date' => $validated['transfer_date'],
+                'notes' => $validated['notes'] ?? null,
             ]);
 
-            // Update data asset sesuai perubahan terakhir (owner_to, branch_to, department_to)
-            $asset->update([
-                'user_id' => $request->owner_to,      
-                'branch' => $request->branch_to,     
-                'department' => $request->department_to, 
+            // Update asset agar pindah user/cabang/departemen
+            Assets::where('id', $validated['asset_id'])->update([
+                'user_id' => $validated['user_to'],
+                'branch' => $validated['branch_to'],
+                'department' => $validated['department_to'],
             ]);
 
             DB::commit();
 
             return redirect()->route('asset_transfers.index')
-                ->with('success', 'Transfer aset berhasil disimpan.');
-        } catch (\Exception $e) {
-            DB::rollBack();
+                ->with('success', 'Transfer aset berhasil disimpan!');
 
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan saat menyimpan transfer aset: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+            Log::error("AssetTransfer store error: " . $e->getMessage());
+
+            return back()->withErrors('Gagal menyimpan transfer aset.');
         }
     }
-
     /**
      * Detail transfer asset.
      */

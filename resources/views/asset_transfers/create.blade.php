@@ -20,9 +20,8 @@
             </div>
         @endif
 
-        <form action="{{ route('asset_transfers.store') }}"
-              method="POST"
-              class="bg-white shadow rounded-lg p-6 border border-gray-200">
+        <form action="{{ route('asset_transfers.store') }}" method="POST"
+            class="bg-white shadow rounded-lg p-6 border border-gray-200">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -36,10 +35,10 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Nomor Aset</label>
                         <select id="asset_id" name="asset_id"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
+                            class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
                             <option value="">-- Pilih Nomor Aset --</option>
                             @foreach ($assets as $a)
-                                <option value="{{ $a->asset_number }}">
+                                <option value="{{ $a->id }}">
                                     {{ $a->asset_number }} - {{ $a->asset_name }}
                                 </option>
                             @endforeach
@@ -50,8 +49,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">User Awal</label>
                         <select id="owner_from_display"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black"
-                                disabled>
+                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
                             <option value="">-- Pilih User Awal --</option>
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -63,9 +61,8 @@
                     {{-- User Baru --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">User Baru</label>
-                        <select name="user_to"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black"
-                                required>
+                        <select name="user_to" class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black"
+                            required>
                             <option value="">-- Pilih User Baru --</option>
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -76,10 +73,8 @@
                     {{-- Tanggal Transfer --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Tanggal Transfer Aset</label>
-                        <input type="date"
-                               name="transfer_date"
-                               class="w-full border-gray-300 rounded-md p-2 bg-white text-black"
-                               required>
+                        <input type="date" name="transfer_date"
+                            class="w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
                     </div>
                 </div>
 
@@ -92,8 +87,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Cabang Awal</label>
                         <select id="branch_from_display"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black"
-                                disabled>
+                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
                             <option value="">-- Pilih Cabang Awal --</option>
                             @foreach ($branches as $b)
                                 <option value="{{ $b->name }}">{{ $b->name }}</option>
@@ -105,8 +99,8 @@
                     {{-- Cabang Baru --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Cabang Baru</label>
-                        <select name="branch_to"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
+                        <select name="branch_to" class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black"
+                            required>
                             <option value="">-- Pilih Cabang Baru --</option>
                             @foreach ($branches as $b)
                                 <option value="{{ $b->name }}">{{ $b->name }}</option>
@@ -118,8 +112,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Departemen Awal</label>
                         <select id="department_from_display"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black"
-                                disabled>
+                            class="select2 w-full border-gray-300 rounded-md p-2 bg-gray-100 text-black" disabled>
                             <option value="">-- Pilih Departemen Awal --</option>
                             @foreach ($departments as $d)
                                 <option value="{{ $d->name }}">{{ $d->name }}</option>
@@ -132,7 +125,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Departemen Baru</label>
                         <select name="department_to"
-                                class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
+                            class="select2 w-full border-gray-300 rounded-md p-2 bg-white text-black" required>
                             <option value="">-- Pilih Departemen Baru --</option>
                             @foreach ($departments as $d)
                                 <option value="{{ $d->name }}">{{ $d->name }}</option>
@@ -150,13 +143,12 @@
 
             {{-- Tombol --}}
             <div class="flex gap-3 mt-6">
-                <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
                     Simpan
                 </button>
 
                 <a href="{{ route('asset_transfers.index') }}"
-                   class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
                     Batal
                 </a>
             </div>
@@ -176,22 +168,22 @@
             });
 
             $('#asset_id').on('change', function() {
-                const assetNumber = encodeURIComponent($(this).val());
-                if (!assetNumber) return;
+                const assetId = $(this).val();
+                if (!assetId) return;
 
-                fetch(`/asset/detail-by-number?asset_number=${assetNumber}`)
+                fetch(`/asset/detail-by-id?asset_id=${assetId}`)
                     .then(r => r.json())
                     .then(data => {
 
-                        // Owner
+                        // USER AWAL
                         $('#owner_from_display').val(data.user_id || '').trigger('change');
                         $('#owner_from').val(data.user_id || '');
 
-                        // Cabang
+                        // BRANCH AWAL (STRING)
                         $('#branch_from_display').val(data.branch || '').trigger('change');
                         $('#branch_from').val(data.branch || '');
 
-                        // Departemen
+                        // DEPARTMENT AWAL (STRING)
                         $('#department_from_display').val(data.department || '').trigger('change');
                         $('#department_from').val(data.department || '');
                     })
@@ -199,5 +191,4 @@
             });
         });
     </script>
-
 @endsection
