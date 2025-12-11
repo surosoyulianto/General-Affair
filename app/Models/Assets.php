@@ -14,8 +14,8 @@ class Assets extends Model
     protected $fillable = [
         'asset_number',
         'asset_name',
-        'branch',
-        'department',
+        'branch',            // kolom lama (text)
+        'department',        // kolom lama (text)
         'type_asset',
         'brand',
         'model',
@@ -31,43 +31,71 @@ class Assets extends Model
         'location',
         'status',
         'description',
-        'user_id', // sesuai tabel
+        'user_id',
+        'branch_id',         // kolom baru FK
+        'department_id',     // kolom baru FK
+        // Kolom baru untuk upload Excel
+        'asset_no',
+        'dept',
+        'acquisition_date',
+        'end_date',
+        'voucher_aqc',
+        'base_price',
+        'accumulation_last_year',
+        'ending_book_value_last_year',
+        'dep_rate',
+        'depreciation_yearly',
+        'book_value_last_month',
+        'depreciation_accum_depr',
+        'depreciation_book_value',
     ];
 
     protected $casts = [
-        'os_installed' => 'date',
+        'os_installed'  => 'date',
         'purchase_date' => 'date',
     ];
 
     /**
-     * Relasi ke user (pemilik aset)
+     * User
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Accessor untuk nama user (fallback '-')
+     * Relasi branch baru (FK)
      */
-    public function getAssignedUserNameAttribute()
+    public function branch()
     {
-        return $this->user?->name ?? '-';
+        return $this->belongsTo(Branch::class, 'branch_id');
     }
 
     /**
-     * Karena department hanya teks biasa
+     * Relasi department baru (FK)
      */
-    public function getDepartmentNameAttribute()
+    public function department()
     {
-        return $this->department ?? '-';
+        return $this->belongsTo(Department::class, 'department_id');
     }
 
     /**
-     * Karena branch hanya teks biasa
+     * Accessor Fallback:
+     * Jika branch_id ada → ambil relasi
+     * Jika tidak → pakai kolom lama 'branch'
      */
     public function getBranchNameAttribute()
     {
-        return $this->branch ?? '-';
+        return $this->branch->name ?? $this->branch ?? '-';
+    }
+
+    public function getDepartmentNameAttribute()
+    {
+        return $this->department->name ?? $this->department ?? '-';
+    }
+
+    public function getAssignedUserNameAttribute()
+    {
+        return $this->user->name ?? '-';
     }
 }

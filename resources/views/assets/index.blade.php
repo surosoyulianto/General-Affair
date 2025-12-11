@@ -7,14 +7,17 @@
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold text-gray-800">Daftar Asset</h1>
 
-            {{-- Tombol Create Asset --}}
-            <a href="{{ route('assets.create') }}"
-                class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Create Asset</span>
-            </a>
+            {{-- Tombol-tombol --}}
+            <div class="flex items-center gap-4">
+                {{-- Tombol Create Asset --}}
+                <a href="{{ route('assets.create') }}"
+                    class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Create Asset</span>
+                </a>
+            </div>
         </div>
 
         {{-- Notifikasi sukses --}}
@@ -51,6 +54,9 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse ($assets as $asset)
+                        {{-- @php
+                            dd($asset->branch_id, $asset->branch);
+                        @endphp --}}
                         <tr class="hover:bg-gray-50">
 
                             {{-- NOMOR URUT PAGINATION --}}
@@ -60,8 +66,8 @@
 
                             <td class="px-4 py-2">{{ $asset->asset_number }}</td>
                             <td class="px-4 py-2">{{ $asset->asset_name ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $asset->branch ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $asset->department ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $asset->branch_name ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $asset->department_name ?? '-' }}</td>
                             <td class="px-4 py-2">{{ $asset->type_asset ?? '-' }}</td>
                             <td class="px-4 py-2">{{ $asset->system_info ?? '-' }}</td>
                             <td class="px-4 py-2">{{ $asset->brand ?? '-' }}</td>

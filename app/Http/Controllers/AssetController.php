@@ -16,8 +16,8 @@ class AssetController extends Controller
      */
     public function index()
     {
-        // Ambil assets beserta relasi user
-        $assets = Assets::with('user')->paginate(10);
+        // Ambil assets beserta relasi user, branch, dan department
+        $assets = Assets::with(['branch', 'department', 'user'])->paginate(10);
 
         // Ambil daftar user untuk dropdown
         $users = User::select('id', 'name')->orderBy('name')->get();
@@ -166,12 +166,12 @@ class AssetController extends Controller
             'asset_number' => $asset->asset_number,
             'asset_name' => $asset->asset_name,
 
-            // 🔥 USER AWAL
+            // user awal
             'user_id' => $asset->user_id,
 
-            // 🔥 BRANCH & DEPT = STRING (langsung ambil dari assets table)
-            'branch' => $asset->branch,
-            'department' => $asset->department,
+            // HARUS ID supaya cocok dgn select option
+            'branch_id' => $asset->branch,
+            'department_id' => $asset->department,
         ]);
     }
 }
