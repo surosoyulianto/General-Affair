@@ -12,14 +12,27 @@ class AssetUploadController extends Controller
     /**
      * Tampilkan form upload file Excel.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // ambil semua data dari table asset_upload (model harus menunjuk ke table asset_upload)
-        $asset_uploads = AssetUpload::latest()->get();
+        $query = AssetUpload::query();
+
+        // SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('asset_no', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
+            });
+        }
+
+        $asset_uploads = $query
+            ->orderBy('asset_no', 'asc')
+            ->paginate(10)
+            ->withQueryString(); // supaya search tetap saat pagination
 
         return view('asset_uploads.index', compact('asset_uploads'));
     }
-
     /**
      * Proses upload dan import file Excel.
      */
@@ -32,25 +45,17 @@ class AssetUploadController extends Controller
         try {
             Excel::import(new AssetsImport, $request->file('file'));
 
-            // Check if request is AJAX
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Data asset berhasil diupload dan disimpan ke database.'
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'redirect' => route('asset_uploads.index'),
+                'message' => 'Data asset berhasil diupload dan disimpan ke database.'
+            ]);
 
-            return redirect()->route('asset_uploads.index')->with('success', 'Data asset berhasil diupload dan disimpan ke database.');
         } catch (\Exception $e) {
-            // Check if request is AJAX
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Terjadi kesalahan saat mengupload file: ' . $e->getMessage()
-                ], 422);
-            }
-
-            return redirect()->route('asset_uploads.index')->with('error', 'Terjadi kesalahan saat mengupload file: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 422);
         }
     }
 }
