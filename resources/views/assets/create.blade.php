@@ -19,142 +19,95 @@
             @csrf
 
             <div class="grid grid-cols-2 gap-4">
-                {{-- Asset Number --}}
+                {{-- Asset No --}}
                 <div>
-                    <label class="block font-semibold">Asset Number</label>
-                    <input type="text" name="asset_number" value="{{ old('asset_number') }}" required
+                    <label class="block font-semibold">Asset No</label>
+                    <input type="text" name="asset_no" value="{{ old('asset_no') }}"
                         class="w-full border rounded p-2">
-                </div>
-
-                {{-- Asset Name --}}
-                <div>
-                    <label class="block font-semibold">Asset Name</label>
-                    <input type="text" name="asset_name" value="{{ old('asset_name') }}" required
-                        class="w-full border rounded p-2">
-                </div>
-
-                {{-- Branch --}}
-                <div>
-                    <label class="block font-semibold">Branch</label>
-                    <select name="branch" class="w-full border rounded p-2">
-                        <option value="">-- Select Branch --</option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->name }}" {{ old('branch') == $branch->name ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
-                    </select>
                 </div>
 
                 {{-- Department --}}
                 <div>
                     <label class="block font-semibold">Department</label>
-                    <select name="department" class="w-full border rounded p-2">
-                        <option value="">-- Select Department --</option>
-                        @foreach ($departments as $department)
-                            <option value="{{ $department->name }}"
-                                {{ old('department') == $department->name ? 'selected' : '' }}>
-                                {{ $department->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Specification --}}
-                <div>
-                    <label class="block font-semibold">Specification</label>
-                    <input type="text" name="specification" value="{{ old('specification') }}"
+                    <input type="text" name="dept" value="{{ old('dept') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Serial Number --}}
+                {{-- Acquisition Date --}}
                 <div>
-                    <label class="block font-semibold">Serial Number</label>
-                    <input type="text" name="serial_number" value="{{ old('serial_number') }}"
+                    <label class="block font-semibold">Acquisition Date</label>
+                    <input type="date" name="acquisition_date" value="{{ old('acquisition_date') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- RAM --}}
+                {{-- End Date --}}
                 <div>
-                    <label class="block font-semibold">RAM Capacity</label>
-                    <input type="text" name="ram_capacity" value="{{ old('ram_capacity') }}"
+                    <label class="block font-semibold">End Date</label>
+                    <input type="date" name="end_date" value="{{ old('end_date') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Type Asset --}}
+                {{-- Voucher Aqc --}}
                 <div>
-                    <label class="block font-semibold">Type Asset</label>
-                    <input type="text" name="type_asset" value="{{ old('type_asset') }}"
+                    <label class="block font-semibold">Voucher Aqc</label>
+                    <input type="text" name="voucher_aqc" value="{{ old('voucher_aqc') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Storage Type --}}
+                {{-- Base Price --}}
                 <div>
-                    <label class="block font-semibold">Storage Type</label>
-                    <input type="text" name="storage_type" value="{{ old('storage_type') }}"
+                    <label class="block font-semibold">Base Price</label>
+                    <input type="number" step="0.01" name="base_price" value="{{ old('base_price') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Storage Volume --}}
+                {{-- Accumulation Last Year --}}
                 <div>
-                    <label class="block font-semibold">Storage Volume</label>
-                    <input type="text" name="storage_volume" value="{{ old('storage_volume') }}"
+                    <label class="block font-semibold">Accumulation Last Year</label>
+                    <input type="number" step="0.01" name="accumulation_last_year" value="{{ old('accumulation_last_year') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- OS Edition --}}
+                {{-- Ending Book Value Last Year --}}
                 <div>
-                    <label class="block font-semibold">OS Edition</label>
-                    <input type="text" name="os_edition" value="{{ old('os_edition') }}"
+                    <label class="block font-semibold">Ending Book Value Last Year</label>
+                    <input type="number" step="0.01" name="ending_book_value_last_year" value="{{ old('ending_book_value_last_year') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- OS Installed --}}
+                {{-- Dep Rate --}}
                 <div>
-                    <label class="block font-semibold">OS Installed Date</label>
-                    <input type="date" name="os_installed" value="{{ old('os_installed') }}"
+                    <label class="block font-semibold">Dep Rate</label>
+                    <input type="number" step="0.01" name="dep_rate" value="{{ old('dep_rate') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Brand --}}
+                {{-- Depreciation Yearly --}}
                 <div>
-                    <label class="block font-semibold">Brand</label>
-                    <input type="text" name="brand" value="{{ old('brand') }}" class="w-full border rounded p-2">
-                </div>
-
-                {{-- Model --}}
-                <div>
-                    <label class="block font-semibold">Model</label>
-                    <input type="text" name="model" value="{{ old('model') }}" class="w-full border rounded p-2">
-                </div>
-
-                {{-- Purchase Date --}}
-                <div>
-                    <label class="block font-semibold">Purchase Date</label>
-                    <input type="date" name="purchase_date" value="{{ old('purchase_date') }}"
+                    <label class="block font-semibold">Depreciation Yearly</label>
+                    <input type="number" step="0.01" name="depreciation_yearly" value="{{ old('depreciation_yearly') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Purchase Value --}}
+                {{-- Book Value Last Month --}}
                 <div>
-                    <label class="block font-semibold">Purchase Value</label>
-                    <input type="text" name="purchase_value" value="{{ old('purchase_value') }}"
+                    <label class="block font-semibold">Book Value Last Month</label>
+                    <input type="number" step="0.01" name="book_value_last_month" value="{{ old('book_value_last_month') }}"
                         class="w-full border rounded p-2">
                 </div>
 
-                {{-- Location --}}
+                {{-- Depreciation Accum Depr --}}
                 <div>
-                    <label class="block font-semibold">Location</label>
-                    <input type="text" name="location" value="{{ old('location') }}" class="w-full border rounded p-2">
+                    <label class="block font-semibold">Depreciation Accum Depr</label>
+                    <input type="number" step="0.01" name="depreciation_accum_depr" value="{{ old('depreciation_accum_depr') }}"
+                        class="w-full border rounded p-2">
                 </div>
 
-                {{-- Status --}}
+                {{-- Depreciation Book Value --}}
                 <div>
-                    <label class="block font-semibold">Status</label>
-                    <select name="status" class="w-full border rounded p-2">
-                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
+                    <label class="block font-semibold">Depreciation Book Value</label>
+                    <input type="number" step="0.01" name="depreciation_book_value" value="{{ old('depreciation_book_value') }}"
+                        class="w-full border rounded p-2">
                 </div>
 
                 {{-- Select User --}}

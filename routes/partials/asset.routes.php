@@ -18,8 +18,12 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'assets.destroy',
     ]);
 
+
     // Endpoint AJAX detail asset by ID
     Route::get('/asset/detail-by-id', [AssetController::class, 'detailById']);
+
+    // Copy assets from asset_upload table
+    Route::post('/assets/copy-from-upload', [AssetController::class, 'copyFromUpload'])->name('assets.copy-from-upload');
 
     // Asset Upload Routes
     Route::get('/asset-uploads', [AssetUploadController::class, 'index'])->name('asset_uploads.index');

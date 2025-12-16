@@ -1,52 +1,45 @@
-# TODO: Implementasi Menu Upload File Excel untuk Asset
 
-## Status: Completed
+# TODO: Ubah Tombol Create Asset menjadi Copy Asset
 
-### Tugas yang Telah Diselesaikan:
-- [x] Install Laravel Excel package (maatwebsite/excel)
-- [x] Buat AssetUploadController dengan method index dan store
-- [x] Buat AssetsImport class untuk mengimport data dari Excel
-- [x] Tambahkan routes untuk asset uploads di routes/partials/asset.routes.php
-- [x] Buat view untuk form upload di resources/views/asset_uploads/index.blade.php
-- [x] Update navigation.blade.php untuk menambahkan route yang benar pada menu "Menu Upload File"
+## Progress
+- [x] 1. Samakan struktur table assets dengan asset_upload
+- [x] 2. Buat method copyFromUpload di AssetController
+- [x] 3. Tambah route copy di asset.routes.php  
+- [x] 4. Update view di assets/index.blade.php
+- [x] 5. Update form create.blade.php dan edit.blade.php
+- [x] 6. Jalankan migration dan test routes
+- [x] 7. Test functionality
 
-### Cara Penggunaan:
-1. Akses menu "Master" > "Menu Upload File" dari navigasi
-2. Pilih file Excel (.xlsx atau .xls) yang berisi data asset
-3. Klik "Upload dan Import" untuk menyimpan data ke database
+## Detail Implementation
 
-### Catatan:
-- Pastikan file Excel memiliki header yang sesuai dengan kolom di tabel assets
-- Header yang didukung: asset_number, asset_name, branch, department, type_asset, brand, model, specification, serial_number, ram_capacity, storage_type, storage_volume, os_edition, os_installed, purchase_date, purchase_value, location, status, description, user_id
-- Data akan langsung diinsert ke tabel assets
+### 1. Database Migration
+- Drop table assets lama dengan CASCADE
+- Recreate table assets dengan struktur sama persis dengan asset_upload:
+  - asset_no, description, dept, acquisition_date, end_date, voucher_aqc, base_price, accumulation_last_year, ending_book_value_last_year, dep_rate, depreciation_yearly, book_value_last_month, depreciation_accum_depr, depreciation_book_value, user_id, timestamps
+- Restore foreign key constraint untuk asset_transfers
 
-### Perbaikan Terbaru:
-- [x] Perbaiki route pada menu "Menu Upload File" di navigation.blade.php agar mengarah ke asset_uploads.index
-- [x] Update migration asset_upload dengan kolom-kolom yang sesuai spesifikasi
-- [x] Update model Assets untuk menambahkan fillable fields baru
-- [x] Buat model AssetUpload
-- [x] Update AssetsImport untuk menggunakan model AssetUpload dengan kolom yang benar
+### 2. Model Assets Update
+- Update $fillable dengan field baru
+- Update $casts untuk decimal dan date fields
+- Remove relasi yang tidak diperlukan lagi
 
-## TODO: Tambahkan Popup Progress Bar untuk Upload File
+### 3. Controller Update
+- Method copyFromUpload() dengan mapping langsung (struktur sama)
+- Update semua method (store, update, create, edit) dengan field baru
+- Validation rules untuk field baru
 
-### Status: In Progress
+### 4. View Update
+- assets/index.blade.php: Update table columns
+- assets/create.blade.php: Form dengan field baru
+- assets/edit.blade.php: Form edit dengan field baru
+- Tombol Copy Asset dengan konfirmasi
 
-### Tugas yang Akan Dilakukan:
-- [ ] Tambahkan modal dengan progress bar di view asset_uploads/index.blade.php
-- [ ] Update JavaScript untuk handle upload via AJAX dengan progress tracking
-- [ ] Modifikasi AssetUploadController untuk handle request AJAX dan return response JSON
-- [ ] Test fungsionalitas progress bar selama upload dan import
+### 5. Mapping Data (Sekarang struktur sama persis)
+- asset_no → asset_no (langsung)
+- description → description (langsung)
+- dept → dept (langsung)
+- acquisition_date → acquisition_date (langsung)
+- end_date → end_date (langsung)
+- Dan seterusnya...
 
-### Cara Kerja:
-1. User pilih file dan klik upload
-2. Modal progress bar muncul
-3. Progress bar menampilkan progress upload file
-4. Setelah upload selesai, tampilkan loading selama proses import
-5. Modal tertutup dan redirect ke halaman dengan pesan sukses/error
-
-### Fitur Progress Bar:
-- Modal popup dengan progress bar yang menampilkan persentase upload
-- Progress bar berwarna biru selama upload berhasil, merah jika error
-- Status text yang menjelaskan tahap proses (upload/import)
-- Auto-close modal setelah 2 detik jika berhasil
-- Error handling untuk koneksi dan validasi file
+**Status: COMPLETED ✅**

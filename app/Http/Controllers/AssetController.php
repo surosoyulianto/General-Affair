@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assets;
 use App\Models\User;
-use App\Models\Department;
-use App\Models\Branch;
+use App\Models\AssetUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -16,8 +15,8 @@ class AssetController extends Controller
      */
     public function index()
     {
-        // Ambil assets beserta relasi user, branch, dan department
-        $assets = Assets::with(['branch', 'department', 'user'])->paginate(10);
+        // Ambil assets beserta relasi user
+        $assets = Assets::with(['user'])->paginate(10);
 
         // Ambil daftar user untuk dropdown
         $users = User::select('id', 'name')->orderBy('name')->get();
@@ -32,10 +31,8 @@ class AssetController extends Controller
     {
         $assets = Assets::all();
         $users = User::all();
-        $branches = Branch::all();
-        $departments = Department::all();
 
-        return view('assets.create', compact('assets', 'users', 'branches', 'departments'));
+        return view('assets.create', compact('assets', 'users'));
     }
 
     /**
@@ -44,27 +41,25 @@ class AssetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'asset_number' => 'required|unique:assets,asset_number',
-            'asset_name' => 'required|string|max:255',
-            'branch' => 'nullable|string',
-            'department' => 'nullable|string',
-            'type_asset' => 'nullable|string',
-            'brand' => 'nullable|string',
-            'model' => 'nullable|string',
-            'specification' => 'nullable|string',
-            'serial_number' => 'nullable|string',
-            'ram_capacity' => 'nullable|string',
-            'storage_type' => 'nullable|string',
-            'storage_volume' => 'nullable|string',
-            'os_edition' => 'nullable|string',
-            'os_installed' => 'nullable|date',
-            'purchase_date' => 'nullable|date',
-            'purchase_value' => 'nullable|string',
-            'location' => 'nullable|string',
-            'status' => 'nullable|string',
+            'asset_no' => 'nullable|string',
             'description' => 'nullable|string',
+            'dept' => 'nullable|string',
+            'acquisition_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'voucher_aqc' => 'nullable|string',
+            'base_price' => 'nullable|numeric',
+            'accumulation_last_year' => 'nullable|numeric',
+            'ending_book_value_last_year' => 'nullable|numeric',
+            'dep_rate' => 'nullable|numeric',
+            'depreciation_yearly' => 'nullable|numeric',
+            'book_value_last_month' => 'nullable|numeric',
+            'depreciation_accum_depr' => 'nullable|numeric',
+            'depreciation_book_value' => 'nullable|numeric',
             'user_id' => 'nullable|exists:users,id',
         ]);
+
+        // Set user_id ke user yang sedang login
+        $validated['user_id'] = Auth::id();
 
         Assets::create($validated);
 
@@ -85,12 +80,10 @@ class AssetController extends Controller
      */
     public function edit($id)
     {
-        $asset = assets::findOrFail($id);
+        $asset = Assets::findOrFail($id);
         $users = User::all();
-        $departments = Department::all();
-        $branches = Branch::all();
 
-        return view('assets.edit', compact('asset', 'users', 'departments', 'branches'));
+        return view('assets.edit', compact('asset', 'users'));
     }
 
     /**
@@ -101,26 +94,21 @@ class AssetController extends Controller
         $asset = Assets::findOrFail($id);
 
         $validated = $request->validate([
-            'asset_number' => 'required|unique:assets,asset_number,' . $asset->id,
-            'asset_name' => 'required|string|max:255',
-            'branch' => 'nullable|string',
-            'department' => 'nullable|string',
-            'type_asset' => 'nullable|string',
-            'brand' => 'nullable|string',
-            'model' => 'nullable|string',
-            'specification' => 'nullable|string',
-            'serial_number' => 'nullable|string',
-            'ram_capacity' => 'nullable|string',
-            'storage_type' => 'nullable|string',
-            'storage_volume' => 'nullable|string',
-            'os_edition' => 'nullable|string',
-            'os_installed' => 'nullable|date',
-            'purchase_date' => 'nullable|date',
-            'purchase_value' => 'nullable|string',
-            'location' => 'nullable|string',
-            'status' => 'nullable|string',
+            'asset_no' => 'nullable|string',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'dept' => 'nullable|string',
+            'acquisition_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'voucher_aqc' => 'nullable|string',
+            'base_price' => 'nullable|numeric',
+            'accumulation_last_year' => 'nullable|numeric',
+            'ending_book_value_last_year' => 'nullable|numeric',
+            'dep_rate' => 'nullable|numeric',
+            'depreciation_yearly' => 'nullable|numeric',
+            'book_value_last_month' => 'nullable|numeric',
+            'depreciation_accum_depr' => 'nullable|numeric',
+            'depreciation_book_value' => 'nullable|numeric',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
         // optional: update user_id who last updated asset
@@ -141,37 +129,72 @@ class AssetController extends Controller
 
         return redirect()->route('assets.index')->with('success', 'Asset deleted successfully.');
     }
-    public function getAssetDetail($id)
+
+    /**
+     * Copy semua data dari table asset_upload ke table assets
+     */
+    public function copyFromUpload()
     {
-        $asset = Assets::with(['user', 'departmentRelation', 'branchRelation'])->find($id);
+        try {
+            // Ambil semua data dari asset_upload
+            $uploadedAssets = AssetUpload::all();
 
-        return response()->json($asset);
-    }
-    public function detailById(Request $request)
-    {
-        $assetId = $request->query('asset_id');
+            if ($uploadedAssets->isEmpty()) {
+                return redirect()->route('assets.index')->with('error', 'Tidak ada data yang bisa dicopy dari asset_upload.');
+            }
 
-        if (!$assetId) {
-            return response()->json(['error' => 'asset_id is required'], 400);
+            $copiedCount = 0;
+            $errors = [];
+
+            foreach ($uploadedAssets as $uploadedAsset) {
+                try {
+                    // Mapping data dari asset_upload ke assets (struktur sama)
+                    $assetData = [
+                        'asset_no' => $uploadedAsset->asset_no,
+                        'description' => $uploadedAsset->description,
+                        'dept' => $uploadedAsset->dept,
+                        'acquisition_date' => $uploadedAsset->acquisition_date,
+                        'end_date' => $uploadedAsset->end_date,
+                        'voucher_aqc' => $uploadedAsset->voucher_aqc,
+                        'base_price' => $uploadedAsset->base_price,
+                        'accumulation_last_year' => $uploadedAsset->accumulation_last_year,
+                        'ending_book_value_last_year' => $uploadedAsset->ending_book_value_last_year,
+                        'dep_rate' => $uploadedAsset->dep_rate,
+                        'depreciation_yearly' => $uploadedAsset->depreciation_yearly,
+                        'book_value_last_month' => $uploadedAsset->book_value_last_month,
+                        'depreciation_accum_depr' => $uploadedAsset->depreciation_accum_depr,
+                        'depreciation_book_value' => $uploadedAsset->depreciation_book_value,
+                        'user_id' => Auth::id(),
+                    ];
+
+                    // Cek apakah asset_no sudah ada
+                    $existingAsset = Assets::where('asset_no', $assetData['asset_no'])->first();
+                    if ($existingAsset) {
+                        $errors[] = "Asset no {$assetData['asset_no']} sudah ada, dilewati.";
+                        continue;
+                    }
+
+                    // Buat asset baru
+                    Assets::create($assetData);
+                    $copiedCount++;
+
+                } catch (\Exception $e) {
+                    $errors[] = "Error copying asset: " . $e->getMessage();
+                    continue;
+                }
+            }
+
+            $message = "Berhasil mencopy {$copiedCount} asset dari asset_upload.";
+            if (!empty($errors)) {
+                $message .= " Ada " . count($errors) . " error: " . implode(', ', $errors);
+            }
+
+            $status = $copiedCount > 0 ? 'success' : 'error';
+            
+            return redirect()->route('assets.index')->with($status, $message);
+
+        } catch (\Exception $e) {
+            return redirect()->route('assets.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $asset = Assets::with('user')->where('id', $assetId)->first();
-
-        if (!$asset) {
-            return response()->json(['error' => 'Asset not found'], 404);
-        }
-
-        return response()->json([
-            'id' => $asset->id,
-            'asset_number' => $asset->asset_number,
-            'asset_name' => $asset->asset_name,
-
-            // user awal
-            'user_id' => $asset->user_id,
-
-            // HARUS ID supaya cocok dgn select option
-            'branch_id' => $asset->branch,
-            'department_id' => $asset->department,
-        ]);
     }
 }

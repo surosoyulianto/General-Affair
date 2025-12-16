@@ -20,140 +20,104 @@
         @method('PUT')
 
         <div class="grid grid-cols-2 gap-4">
-            {{-- Asset Number --}}
+            {{-- Asset No --}}
             <div>
-                <label class="block font-semibold">Asset Number</label>
-                <input type="text" name="asset_number" value="{{ old('asset_number', $asset->asset_number) }}" required
+                <label class="block font-semibold">Asset No</label>
+                <input type="text" name="asset_no" value="{{ old('asset_no', $asset->asset_no) }}"
                     class="w-full border rounded p-2">
-            </div>
-
-            {{-- Asset Name --}}
-            <div>
-                <label class="block font-semibold">Asset Name</label>
-                <input type="text" name="asset_name" value="{{ old('asset_name', $asset->asset_name) }}" required
-                    class="w-full border rounded p-2">
-            </div>
-
-            {{-- Branch --}}
-            <div>
-                <label class="block font-semibold">Branch</label>
-                <select name="branch" class="w-full border rounded p-2">
-                    <option value="">-- Select Branch --</option>
-                    @foreach ($branches as $branch)
-                        <option value="{{ $branch->name }}" {{ old('branch', $asset->branch) == $branch->name ? 'selected' : '' }}>
-                            {{ $branch->name }}
-                        </option>
-                    @endforeach
-                </select>
             </div>
 
             {{-- Department --}}
             <div>
                 <label class="block font-semibold">Department</label>
-                <select name="department" class="w-full border rounded p-2">
-                    <option value="">-- Select Department --</option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->name }}" {{ old('department', $asset->department) == $department->name ? 'selected' : '' }}>
-                            {{ $department->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <input type="text" name="dept" value="{{ old('dept', $asset->dept) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Specification --}}
+            {{-- Acquisition Date --}}
             <div>
-                <label class="block font-semibold">Specification</label>
-                <input type="text" name="specification" value="{{ old('specification', $asset->specification) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Acquisition Date</label>
+                <input type="date" name="acquisition_date" value="{{ old('acquisition_date', $asset->acquisition_date) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Serial Number --}}
+            {{-- End Date --}}
             <div>
-                <label class="block font-semibold">Serial Number</label>
-                <input type="text" name="serial_number" value="{{ old('serial_number', $asset->serial_number) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">End Date</label>
+                <input type="date" name="end_date" value="{{ old('end_date', $asset->end_date) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- RAM --}}
+            {{-- Voucher Aqc --}}
             <div>
-                <label class="block font-semibold">RAM Capacity</label>
-                <input type="text" name="ram_capacity" value="{{ old('ram_capacity', $asset->ram_capacity) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Voucher Aqc</label>
+                <input type="text" name="voucher_aqc" value="{{ old('voucher_aqc', $asset->voucher_aqc) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Type Asset --}}
+            {{-- Base Price --}}
             <div>
-                <label class="block font-semibold">Type Asset</label>
-                <input type="text" name="type_asset" value="{{ old('type_asset', $asset->type_asset) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Base Price</label>
+                <input type="number" step="0.01" name="base_price" value="{{ old('base_price', $asset->base_price) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Storage Type --}}
+            {{-- Accumulation Last Year --}}
             <div>
-                <label class="block font-semibold">Storage Type</label>
-                <input type="text" name="storage_type" value="{{ old('storage_type', $asset->storage_type) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Accumulation Last Year</label>
+                <input type="number" step="0.01" name="accumulation_last_year" value="{{ old('accumulation_last_year', $asset->accumulation_last_year) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Storage Volume --}}
+            {{-- Ending Book Value Last Year --}}
             <div>
-                <label class="block font-semibold">Storage Volume</label>
-                <input type="text" name="storage_volume" value="{{ old('storage_volume', $asset->storage_volume) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Ending Book Value Last Year</label>
+                <input type="number" step="0.01" name="ending_book_value_last_year" value="{{ old('ending_book_value_last_year', $asset->ending_book_value_last_year) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- OS Edition --}}
+            {{-- Dep Rate --}}
             <div>
-                <label class="block font-semibold">OS Edition</label>
-                <input type="text" name="os_edition" value="{{ old('os_edition', $asset->os_edition) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Dep Rate</label>
+                <input type="number" step="0.01" name="dep_rate" value="{{ old('dep_rate', $asset->dep_rate) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- OS Installed --}}
+            {{-- Depreciation Yearly --}}
             <div>
-                <label class="block font-semibold">OS Installed Date</label>
-                <input type="date" name="os_installed" value="{{ old('os_installed', $asset->os_installed) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Depreciation Yearly</label>
+                <input type="number" step="0.01" name="depreciation_yearly" value="{{ old('depreciation_yearly', $asset->depreciation_yearly) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Brand --}}
+            {{-- Book Value Last Month --}}
             <div>
-                <label class="block font-semibold">Brand</label>
-                <input type="text" name="brand" value="{{ old('brand', $asset->brand) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Book Value Last Month</label>
+                <input type="number" step="0.01" name="book_value_last_month" value="{{ old('book_value_last_month', $asset->book_value_last_month) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Model --}}
+            {{-- Depreciation Accum Depr --}}
             <div>
-                <label class="block font-semibold">Model</label>
-                <input type="text" name="model" value="{{ old('model', $asset->model) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Depreciation Accum Depr</label>
+                <input type="number" step="0.01" name="depreciation_accum_depr" value="{{ old('depreciation_accum_depr', $asset->depreciation_accum_depr) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Purchase Date --}}
+            {{-- Depreciation Book Value --}}
             <div>
-                <label class="block font-semibold">Purchase Date</label>
-                <input type="date" name="purchase_date" value="{{ old('purchase_date', $asset->purchase_date) }}" class="w-full border rounded p-2">
+                <label class="block font-semibold">Depreciation Book Value</label>
+                <input type="number" step="0.01" name="depreciation_book_value" value="{{ old('depreciation_book_value', $asset->depreciation_book_value) }}"
+                    class="w-full border rounded p-2">
             </div>
 
-            {{-- Purchase Value --}}
-            <div>
-                <label class="block font-semibold">Purchase Value</label>
-                <input type="text" name="purchase_value" value="{{ old('purchase_value', $asset->purchase_value) }}" class="w-full border rounded p-2">
-            </div>
-
-            {{-- Location --}}
-            <div>
-                <label class="block font-semibold">Location</label>
-                <input type="text" name="location" value="{{ old('location', $asset->location) }}" class="w-full border rounded p-2">
-            </div>
-
-            {{-- Status --}}
-            <div>
-                <label class="block font-semibold">Status</label>
-                <select name="status" class="w-full border rounded p-2">
-                    <option value="active" {{ old('status', $asset->status) == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ old('status', $asset->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-
-            {{-- Assigned To --}}
+            {{-- Select User --}}
             <div class="col-span-2">
-                <label class="block font-semibold">Assigned To</label>
-                <select name="assigned_to" class="w-full border rounded p-2">
+                <label class="block font-semibold">Select User</label>
+                <select name="user_id" class="w-full border rounded p-2">
                     <option value="">-- Select User --</option>
                     @foreach ($users as $user)
-                        <option value="{{ $user->id }}" {{ old('assigned_to', $asset->assigned_to) == $user->id ? 'selected' : '' }}>
+                        <option value="{{ $user->id }}" {{ old('user_id', $asset->user_id) == $user->id ? 'selected' : '' }}>
                             {{ $user->name }}
                         </option>
                     @endforeach
